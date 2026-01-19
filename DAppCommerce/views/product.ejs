@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Product Details</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="brand">FreshChain Grocery</div>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About Us</a>
+        <a class="active" href="/account">Wallet / Account</a>
+      </div>
+      <button class="button ghost" id="connectWallet">Connect Wallet</button>
+    </nav>
+
+    <main class="container">
+      <% if (product) { %>
+        <section class="detail">
+          <div class="detail-image" aria-hidden="true"></div>
+          <div class="detail-content">
+            <h1><%= product.name %></h1>
+            <p class="muted"><%= product.description %></p>
+            <div class="detail-meta">
+              <span class="price"><%= (Number(product.priceWei) / 1e18).toFixed(3) %> ETH</span>
+              <span class="badge"><%= product.active ? 'Available' : 'Unavailable' %></span>
+            </div>
+            <p id="purchaseStatus" class="status">Status: Not purchased</p>
+            <button
+              class="button"
+              id="buyButton"
+              data-product-id="<%= product.id %>"
+              data-price-wei="<%= product.priceWei %>"
+              <%= product.active ? '' : 'disabled' %>
+            >
+              Buy Now with MetaMask
+            </button>
+            <div class="notice" id="purchaseNotice" hidden></div>
+          </div>
+        </section>
+      <% } else { %>
+        <p class="muted">Product not found or contracts not deployed.</p>
+      <% } %>
+    </main>
+
+    <footer class="footer">
+      <span>FreshChain Grocery © 2026</span>
+      <span>Secure payments • Instant rewards • NFT membership</span>
+      <span class="server-status">Listening at <%= serverUrl || 'http://localhost:3000' %></span>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    <script src="/js/dapp.js"></script>
+  </body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>About FreshChain</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="brand">FreshChain Grocery</div>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a class="active" href="/about">About Us</a>
+        <a href="/account">Wallet / Account</a>
+      </div>
+      <button class="button ghost" id="connectWallet">Connect Wallet</button>
+    </nav>
+
+    <main class="container">
+      <section class="story">
+        <h1>About FreshChain Grocery</h1>
+        <p>
+          FreshChain is a grocery e-commerce platform designed to show how blockchain builds trust in everyday
+          purchases. Each checkout is recorded on-chain, delivering transparent payments, automated rewards,
+          and NFT-based membership perks.
+        </p>
+        <div class="grid two">
+          <div class="info-card">
+            <h3>Why blockchain?</h3>
+            <ul>
+              <li>Transparent payments and immutable receipts</li>
+              <li>Trustless escrow-style confirmations</li>
+              <li>Automatic loyalty rewards with zero manual admin</li>
+              <li>Wallet-based NFT membership rights</li>
+            </ul>
+          </div>
+          <div class="info-card">
+            <h3>Benefits for shoppers</h3>
+            <ul>
+              <li>No third-party payment processor required</li>
+              <li>Tamper-proof purchase records</li>
+              <li>Instant points and XP for every purchase</li>
+              <li>Exclusive access when tier upgrades unlock</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>FreshChain Grocery © 2026</span>
+      <span>Transparent • Trustless • Rewarding</span>
+      <span class="server-status">Listening at <%= serverUrl || 'http://localhost:3000' %></span>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    <script src="/js/dapp.js"></script>
+  </body>
+</html>

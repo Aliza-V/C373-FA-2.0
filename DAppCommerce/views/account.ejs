@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Account Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="brand">FreshChain Grocery</div>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About Us</a>
+        <a class="active" href="/account">Wallet / Account</a>
+      </div>
+      <button class="button ghost" id="connectWallet">Connect Wallet</button>
+    </nav>
+
+    <main class="container">
+      <section class="dashboard">
+        <div class="dashboard-header">
+          <div>
+            <h1>Membership & Rewards</h1>
+            <p class="muted">Track points, XP, and membership tiers after each blockchain purchase.</p>
+          </div>
+          <div class="wallet-box">
+            <span class="label">Wallet</span>
+            <p id="walletAddress" class="mono"><%= account || 'Not connected' %></p>
+          </div>
+        </div>
+
+        <div class="grid three">
+          <div class="stat">
+            <span class="label">Loyalty Points</span>
+            <h2 id="loyaltyPoints">0</h2>
+          </div>
+          <div class="stat">
+            <span class="label">XP Earned</span>
+            <h2 id="xpPoints">0</h2>
+          </div>
+          <div class="stat">
+            <span class="label">Purchases</span>
+            <h2 id="purchaseCount">0</h2>
+          </div>
+        </div>
+
+        <div class="tier">
+          <div class="tier-info">
+            <h3>Membership Tier</h3>
+            <p id="membershipTier" class="badge">None</p>
+            <p class="muted">Unlock Silver at 100 XP and 3 purchases.</p>
+          </div>
+          <div class="progress">
+            <div class="progress-bar" id="xpProgress" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Redeem Loyalty Points</h3>
+          <p class="muted">Use points to unlock discounts at checkout.</p>
+          <div class="redeem-row">
+            <input type="number" id="redeemAmount" min="1" placeholder="Enter points" />
+            <button class="button" id="redeemButton">Redeem</button>
+          </div>
+          <div class="notice" id="redeemNotice" hidden></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>FreshChain Grocery © 2026</span>
+      <span>Membership perks powered by NFTs</span>
+      <span class="server-status">Listening at <%= serverUrl || 'http://localhost:3000' %></span>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    <script src="/js/dapp.js"></script>
+  </body>
+</html>
