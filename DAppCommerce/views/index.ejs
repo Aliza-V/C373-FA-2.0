@@ -32,29 +32,6 @@
       </div>
     </header>
 
-    <main class="container">
-      <section class="section">
-        <h2>Membership plans</h2>
-        <div class="grid">
-          <% if (products && products.length) { %>
-            <% products.forEach(product => { %>
-              <article class="product-card">
-                <div class="product-image" aria-hidden="true"></div>
-                <h3><%= product.name %></h3>
-                <p><%= product.description %></p>
-                <div class="product-meta">
-                  <span class="price"><%= product.priceWei ? (Number(product.priceWei) / 1e18).toFixed(3) : '0.000' %> ETH</span>
-                  <a class="button" href="/product/<%= product.id %>">View Plan</a>
-                </div>
-              </article>
-            <% }) %>
-          <% } else { %>
-            <p class="muted">Plans will appear after contracts are migrated.</p>
-          <% } %>
-        </div>
-      </section>
-    </main>
-
     <footer class="footer">
       <span>FlexChain Fitness c 2026</span>
       <span>Powered by Web3, Loyalty Tokens, and NFT Membership</span>
