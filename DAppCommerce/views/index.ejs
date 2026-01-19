@@ -1,13 +1,13 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>FreshChain Grocery</title>
+    <title>FlexChain Fitness</title>
     <link rel="stylesheet" href="/css/style.css" />
   </head>
   <body>
     <nav class="nav">
-      <div class="brand">FreshChain Grocery</div>
+      <div class="brand">FlexChain Fitness</div>
       <div class="nav-links">
         <a class="active" href="/">Home</a>
         <a href="/about">About Us</a>
@@ -18,23 +18,23 @@
 
     <header class="hero">
       <div>
-        <p class="eyebrow">On-chain grocery experience</p>
-        <h1>Shop smarter with transparent blockchain payments.</h1>
+        <p class="eyebrow">On-chain gym membership</p>
+        <h1>Train smarter with transparent blockchain payments.</h1>
         <p class="lede">
-          Every grocery purchase triggers automated escrow-style payment confirmation,
-          loyalty point issuance, and NFT membership upgrades—without third-party trust.
+          Every membership signup triggers automated payment confirmation,
+          loyalty point issuance, and NFT membership upgrades without third-party trust.
         </p>
       </div>
       <div class="hero-card">
         <h3>Wallet status</h3>
         <p id="walletAddress" class="mono">Connected: <%= account || 'Not connected' %></p>
-        <p class="muted">Use MetaMask to pay with test ETH and earn rewards.</p>
+        <p class="muted">Use MetaMask to pay with test ETH and earn gym rewards.</p>
       </div>
     </header>
 
     <main class="container">
       <section class="section">
-        <h2>Featured groceries</h2>
+        <h2>Membership plans</h2>
         <div class="grid">
           <% if (products && products.length) { %>
             <% products.forEach(product => { %>
@@ -44,20 +44,20 @@
                 <p><%= product.description %></p>
                 <div class="product-meta">
                   <span class="price"><%= product.priceWei ? (Number(product.priceWei) / 1e18).toFixed(3) : '0.000' %> ETH</span>
-                  <a class="button" href="/product/<%= product.id %>">View Details</a>
+                  <a class="button" href="/product/<%= product.id %>">View Plan</a>
                 </div>
               </article>
             <% }) %>
           <% } else { %>
-            <p class="muted">Products will appear after contracts are migrated.</p>
+            <p class="muted">Plans will appear after contracts are migrated.</p>
           <% } %>
         </div>
       </section>
     </main>
 
     <footer class="footer">
-      <span>FreshChain Grocery © 2026</span>
-      <span>Powered by Web3, Loyalty Tokens & NFT Membership</span>
+      <span>FlexChain Fitness c 2026</span>
+      <span>Powered by Web3, Loyalty Tokens, and NFT Membership</span>
       <span class="server-status">Listening at <%= serverUrl || 'http://localhost:3000' %></span>
     </footer>
 

@@ -1,4 +1,4 @@
-const DApp = {
+﻿const DApp = {
   web3: null,
   account: null,
   contracts: {},
@@ -97,16 +97,16 @@ const DApp = {
       return;
     }
     notice.hidden = false;
-    notice.textContent = "Processing purchase...";
+    notice.textContent = "Activating membership...";
     try {
       await this.contracts.payment.methods.purchaseProduct(productId).send({
         from: this.account,
         value: priceWei,
       });
-      notice.textContent = "Purchase confirmed! Rewards updated.";
+      notice.textContent = "Membership activated! Rewards updated.";
       await this.refreshUI();
     } catch (err) {
-      notice.textContent = `Purchase failed: ${err.message}`;
+      notice.textContent = `Activation failed: ${err.message}`;
     }
   },
 
@@ -151,7 +151,7 @@ const DApp = {
     const purchased = await this.contracts.payment.methods
       .hasPurchased(this.account, productId)
       .call();
-    status.textContent = purchased ? "Status: Purchased" : "Status: Not purchased";
+    status.textContent = purchased ? "Status: Active" : "Status: Not active";
     buyButton.disabled = purchased;
   },
 
