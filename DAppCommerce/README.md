@@ -8,7 +8,7 @@ Payment Automation -> Loyalty Rewards & XP -> NFT Membership Tiers
 
 ### Smart Contract Interaction Logic
 
-1. **GroceryPayment** (payment contract) confirms the membership payment and transfers ETH to the gym.
+1. **GymMembershipPayment** (payment contract) confirms the membership payment and transfers ETH to the gym.
 2. **LoyaltyRewards** is triggered by the payment contract to issue points and XP.
 3. **MembershipNFT** upgrades the membership tier when XP and payment thresholds are met.
 
@@ -51,7 +51,7 @@ This enforces fairness:
 
 ## Contract Map
 
-- `contracts/GroceryPayment.sol` - Payment automation, plans, membership activation.
+- `contracts/GymMembershipPayment.sol` - Payment automation, plans, membership activation.
 - `contracts/LoyaltyRewards.sol` - Points + XP issuance, redemption.
 - `contracts/MembershipNFT.sol` - Tier upgrade logic based on XP + payments.
 

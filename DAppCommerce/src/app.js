@@ -2,7 +2,7 @@ const path = require("path");
 const express = require("express");
 const { Web3 } = require("web3");
 
-const GroceryPaymentArtifact = require("../build/GroceryPayment.json");
+const GymMembershipPaymentArtifact = require("../build/GymMembershipPayment.json");
 const LoyaltyRewardsArtifact = require("../build/LoyaltyRewards.json");
 const MembershipNFTArtifact = require("../build/MembershipNFT.json");
 
@@ -21,11 +21,11 @@ let defaultAccount = null;
 let networkId = null;
 
 async function loadContracts() {
-  networkId = await web3.eth.net.getId();
+  networkId = Number(await web3.eth.net.getId());
   const accounts = await web3.eth.getAccounts();
   defaultAccount = accounts[0];
 
-  const paymentAddress = GroceryPaymentArtifact.networks?.[networkId]?.address;
+  const paymentAddress = GymMembershipPaymentArtifact.networks?.[networkId]?.address;
   const loyaltyAddress = LoyaltyRewardsArtifact.networks?.[networkId]?.address;
   const membershipAddress = MembershipNFTArtifact.networks?.[networkId]?.address;
 
@@ -34,7 +34,7 @@ async function loadContracts() {
   }
 
   contracts = {
-    payment: new web3.eth.Contract(GroceryPaymentArtifact.abi, paymentAddress),
+    payment: new web3.eth.Contract(GymMembershipPaymentArtifact.abi, paymentAddress),
     loyalty: new web3.eth.Contract(LoyaltyRewardsArtifact.abi, loyaltyAddress),
     membership: new web3.eth.Contract(MembershipNFTArtifact.abi, membershipAddress),
   };
@@ -53,7 +53,7 @@ async function fetchProducts() {
       id: Number(product[0]),
       name: product[1],
       description: product[2],
-      priceWei: product[3],
+      priceWei: product[3].toString(),
       active: product[4],
     });
   }
@@ -80,7 +80,7 @@ app.get("/product/:id", async (req, res) => {
       id: Number(data[0]),
       name: data[1],
       description: data[2],
-      priceWei: data[3],
+      priceWei: data[3].toString(),
       active: data[4],
     };
   } catch (err) {

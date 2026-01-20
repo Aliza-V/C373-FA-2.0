@@ -1,14 +1,14 @@
-const GroceryPayment = artifacts.require("GroceryPayment");
+const GymMembershipPayment = artifacts.require("GymMembershipPayment");
 const LoyaltyRewards = artifacts.require("LoyaltyRewards");
 const MembershipNFT = artifacts.require("MembershipNFT");
 
-contract("GroceryPayment", (accounts) => {
+contract("GymMembershipPayment", (accounts) => {
   const [seller, buyer] = accounts;
 
   async function deployAll() {
     const loyalty = await LoyaltyRewards.new({ from: seller });
     const membership = await MembershipNFT.new({ from: seller });
-    const payment = await GroceryPayment.new(loyalty.address, { from: seller });
+    const payment = await GymMembershipPayment.new(loyalty.address, { from: seller });
 
     await loyalty.setPaymentContract(payment.address, { from: seller });
     await loyalty.setMembershipContract(membership.address, { from: seller });

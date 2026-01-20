@@ -32,6 +32,36 @@
       </div>
     </header>
 
+    <main class="container">
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <h2>Membership subscriptions</h2>
+            <p class="muted">Pick daily, weekly, monthly, or yearly access and start earning tier rewards.</p>
+          </div>
+          <span class="badge">Blockchain verified</span>
+        </div>
+
+        <% if (products && products.length) { %>
+          <div class="grid">
+            <% products.forEach((product) => { %>
+              <article class="product-card">
+                <div class="product-image" aria-hidden="true"></div>
+                <h3><%= product.name %></h3>
+                <p class="muted"><%= product.description %></p>
+                <div class="product-meta">
+                  <span class="price"><%= (Number(product.priceWei) / 1e18).toFixed(3) %> ETH</span>
+                  <a class="button ghost" href="/product/<%= product.id %>">View plan</a>
+                </div>
+              </article>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <p class="muted">Membership plans will appear after contracts are deployed.</p>
+        <% } %>
+      </section>
+    </main>
+
     <footer class="footer">
       <span>FlexChain Fitness c 2026</span>
       <span>Powered by Web3, Loyalty Tokens, and NFT Membership</span>

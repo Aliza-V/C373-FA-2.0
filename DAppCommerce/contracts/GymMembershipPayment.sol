@@ -5,7 +5,7 @@ interface ILoyaltyRewards {
     function recordPurchase(address buyer, uint256 points, uint256 xp) external;
 }
 
-contract GroceryPayment {
+contract GymMembershipPayment {
     struct Product {
         uint256 id;
         string name;

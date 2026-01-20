@@ -18,7 +18,7 @@
     this.addresses = await res.json();
 
     const [paymentArtifact, loyaltyArtifact, membershipArtifact] = await Promise.all([
-      fetch("/contracts/GroceryPayment.json").then((r) => r.json()),
+      fetch("/contracts/GymMembershipPayment.json").then((r) => r.json()),
       fetch("/contracts/LoyaltyRewards.json").then((r) => r.json()),
       fetch("/contracts/MembershipNFT.json").then((r) => r.json()),
     ]);
@@ -86,6 +86,23 @@
     if (walletDisplay && this.account) {
       walletDisplay.textContent = this.account;
     }
+    this.updateConnectButton();
+  },
+
+  updateConnectButton() {
+    const connectButton = document.getElementById("connectWallet");
+    if (!connectButton) {
+      return;
+    }
+    if (this.account) {
+      connectButton.textContent = "Connected";
+      connectButton.disabled = true;
+      connectButton.classList.add("connected");
+    } else {
+      connectButton.textContent = "Connect Wallet";
+      connectButton.disabled = false;
+      connectButton.classList.remove("connected");
+    }
   },
 
   async purchaseProduct(productId, priceWei) {
@@ -134,6 +151,8 @@
       const accounts = await this.web3.eth.getAccounts();
       this.account = accounts[0];
       this.updateWalletDisplay();
+    } else {
+      this.updateConnectButton();
     }
 
     await this.updatePurchaseStatus();
@@ -182,10 +201,23 @@
     if (tierEl) {
       tierEl.textContent = tierLabel;
     }
+    this.updateTierBenefits(tierLabel);
     if (progressEl) {
       const progress = Math.min((Number(xp) / 500) * 100, 100);
       progressEl.style.width = `${progress}%`;
     }
+  },
+
+  updateTierBenefits(tierLabel) {
+    const cards = document.querySelectorAll(".benefit-card");
+    if (!cards.length) {
+      return;
+    }
+
+    cards.forEach((card) => {
+      const isActive = card.dataset.tier === tierLabel;
+      card.classList.toggle("active", isActive);
+    });
   },
 };
 
