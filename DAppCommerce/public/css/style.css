@@ -317,6 +317,18 @@ a {
   padding: 20px;
 }
 
+.auth-card {
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+.auth-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+
 .tier-grid {
   margin-top: 16px;
 }

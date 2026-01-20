@@ -12,6 +12,8 @@
         <a href="/">Home</a>
         <a href="/about">About Us</a>
         <a class="active" href="/account">Wallet / Account</a>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
       </div>
       <button class="button ghost" id="connectWallet">Connect Wallet</button>
     </nav>
@@ -27,6 +29,23 @@
             <span class="label">Wallet</span>
             <p id="walletAddress" class="mono"><%= account || 'Not connected' %></p>
           </div>
+        </div>
+
+        <div class="card">
+          <div class="section-header">
+            <div>
+              <h3>Member login</h3>
+              <p class="muted">Log in with your MetaMask wallet address.</p>
+            </div>
+            <button class="button ghost" id="logoutWallet" hidden>Logout</button>
+          </div>
+          <p class="muted">Logged in wallet</p>
+          <p id="sessionAddress" class="mono">Not logged in</p>
+          <div class="auth-actions">
+            <a class="button ghost" href="/login">Login</a>
+            <a class="button" href="/register">Register</a>
+          </div>
+          <div class="notice" id="authNotice" hidden></div>
         </div>
 
         <div class="grid three">

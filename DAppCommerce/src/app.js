@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 const express = require("express");
 const { Web3 } = require("web3");
 
@@ -13,12 +14,63 @@ const SERVER_URL = `http://localhost:${PORT}`;
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "..", "views"));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "..", "public")));
 app.use("/contracts", express.static(path.join(__dirname, "..", "build")));
 
 let contracts = {};
 let defaultAccount = null;
 let networkId = null;
+
+const DATA_DIR = path.join(__dirname, "..", "data");
+const ACCOUNTS_PATH = path.join(DATA_DIR, "accounts.json");
+
+function normalizeAddress(address) {
+  return address ? address.toLowerCase() : "";
+}
+
+function loadAccounts() {
+  try {
+    const raw = fs.readFileSync(ACCOUNTS_PATH, "utf8");
+    const data = JSON.parse(raw);
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function saveAccounts(accounts) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.writeFileSync(ACCOUNTS_PATH, JSON.stringify(accounts, null, 2));
+}
+
+function parseCookies(cookieHeader) {
+  if (!cookieHeader) {
+    return {};
+  }
+  return cookieHeader.split(";").reduce((acc, part) => {
+    const [key, ...valueParts] = part.split("=");
+    if (!key) {
+      return acc;
+    }
+    acc[key.trim()] = decodeURIComponent(valueParts.join("=").trim());
+    return acc;
+  }, {});
+}
+
+function getSessionAddress(req) {
+  const cookies = parseCookies(req.headers.cookie);
+  return cookies.walletAddress || null;
+}
+
+function setSessionAddress(res, address) {
+  res.cookie("walletAddress", address, { httpOnly: true, sameSite: "lax", path: "/" });
+}
+
+function clearSessionAddress(res) {
+  res.cookie("walletAddress", "", { httpOnly: true, sameSite: "lax", path: "/", maxAge: 0 });
+}
 
 async function loadContracts() {
   networkId = Number(await web3.eth.net.getId());
@@ -98,6 +150,14 @@ app.get("/about", (req, res) => {
   res.render("about", { serverUrl: SERVER_URL });
 });
 
+app.get("/login", (req, res) => {
+  res.render("login", { serverUrl: SERVER_URL });
+});
+
+app.get("/register", (req, res) => {
+  res.render("register", { serverUrl: SERVER_URL });
+});
+
 app.get("/api/products", async (req, res) => {
   try {
     const products = await fetchProducts();
@@ -114,6 +174,52 @@ app.get("/api/contracts", (req, res) => {
     loyaltyAddress: contracts.loyalty?.options.address || null,
     membershipAddress: contracts.membership?.options.address || null,
   });
+});
+
+app.get("/api/session", (req, res) => {
+  res.json({ address: getSessionAddress(req) });
+});
+
+app.post("/api/register", (req, res) => {
+  const { address } = req.body;
+  if (!address || !web3.utils.isAddress(address)) {
+    return res.status(400).json({ error: "Invalid wallet address" });
+  }
+
+  const accounts = loadAccounts();
+  const normalized = normalizeAddress(address);
+  const exists = accounts.some((account) => normalizeAddress(account.address) === normalized);
+
+  if (!exists) {
+    accounts.push({ address, createdAt: new Date().toISOString() });
+    saveAccounts(accounts);
+  }
+
+  setSessionAddress(res, address);
+  return res.json({ ok: true, address, isNew: !exists });
+});
+
+app.post("/api/login", (req, res) => {
+  const { address } = req.body;
+  if (!address || !web3.utils.isAddress(address)) {
+    return res.status(400).json({ error: "Invalid wallet address" });
+  }
+
+  const accounts = loadAccounts();
+  const normalized = normalizeAddress(address);
+  const exists = accounts.some((account) => normalizeAddress(account.address) === normalized);
+
+  if (!exists) {
+    return res.status(404).json({ error: "Wallet not registered" });
+  }
+
+  setSessionAddress(res, address);
+  return res.json({ ok: true, address });
+});
+
+app.post("/api/logout", (req, res) => {
+  clearSessionAddress(res);
+  res.json({ ok: true });
 });
 
 app.listen(PORT, () => console.log(`Server running on ${SERVER_URL}`));

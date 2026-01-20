@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Member Registration</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="brand">FlexChain Fitness</div>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About Us</a>
+        <a href="/account">Wallet / Account</a>
+        <a href="/login">Login</a>
+        <a class="active" href="/register">Register</a>
+      </div>
+      <button class="button ghost" id="connectWallet">Connect Wallet</button>
+    </nav>
+
+    <main class="container">
+      <section class="card auth-card">
+        <h1>Register your wallet</h1>
+        <p class="muted">Create a membership account using your MetaMask wallet address.</p>
+        <div class="auth-actions">
+          <button class="button" id="registerWallet">Register with MetaMask</button>
+          <a class="button ghost" href="/login">Login instead</a>
+        </div>
+        <p class="muted">Current session</p>
+        <p id="sessionAddress" class="mono">Not logged in</p>
+        <div class="notice" id="authNotice" hidden></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>FlexChain Fitness c 2026</span>
+      <span>Web3 membership onboarding</span>
+      <span class="server-status">Listening at <%= serverUrl || 'http://localhost:3000' %></span>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    <script src="/js/dapp.js"></script>
+  </body>
+</html>

@@ -3,6 +3,7 @@
   account: null,
   contracts: {},
   addresses: {},
+  sessionAddress: null,
 
   async init() {
     if (window.ethereum) {
@@ -69,6 +70,27 @@
         await this.redeemPoints(amount);
       });
     }
+
+    const registerButton = document.getElementById("registerWallet");
+    if (registerButton) {
+      registerButton.addEventListener("click", async () => {
+        await this.registerWallet();
+      });
+    }
+
+    const loginButton = document.getElementById("loginWallet");
+    if (loginButton) {
+      loginButton.addEventListener("click", async () => {
+        await this.loginWallet();
+      });
+    }
+
+    const logoutButton = document.getElementById("logoutWallet");
+    if (logoutButton) {
+      logoutButton.addEventListener("click", async () => {
+        await this.logoutWallet();
+      });
+    }
   },
 
   async connectWallet() {
@@ -102,6 +124,29 @@
       connectButton.textContent = "Connect Wallet";
       connectButton.disabled = false;
       connectButton.classList.remove("connected");
+    }
+  },
+
+  async updateSessionStatus() {
+    const sessionDisplay = document.getElementById("sessionAddress");
+    const logoutButton = document.getElementById("logoutWallet");
+    if (!sessionDisplay && !logoutButton) {
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/session");
+      const data = await res.json();
+      this.sessionAddress = data.address || null;
+    } catch (err) {
+      this.sessionAddress = null;
+    }
+
+    if (sessionDisplay) {
+      sessionDisplay.textContent = this.sessionAddress || "Not logged in";
+    }
+    if (logoutButton) {
+      logoutButton.hidden = !this.sessionAddress;
     }
   },
 
@@ -157,6 +202,7 @@
 
     await this.updatePurchaseStatus();
     await this.updateAccountStats();
+    await this.updateSessionStatus();
   },
 
   async updatePurchaseStatus() {
@@ -218,6 +264,99 @@
       const isActive = card.dataset.tier === tierLabel;
       card.classList.toggle("active", isActive);
     });
+  },
+
+  async registerWallet() {
+    const notice = document.getElementById("authNotice");
+    if (!this.account) {
+      await this.connectWallet();
+    }
+    if (!this.account) {
+      return;
+    }
+
+    if (notice) {
+      notice.hidden = false;
+      notice.textContent = "Registering wallet...";
+    }
+
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address: this.account }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Registration failed");
+      }
+      if (notice) {
+        notice.textContent = data.isNew
+          ? "Registration complete. You are now logged in."
+          : "Wallet already registered. You are now logged in.";
+      }
+      await this.updateSessionStatus();
+    } catch (err) {
+      if (notice) {
+        notice.textContent = `Registration failed: ${err.message}`;
+      }
+    }
+  },
+
+  async loginWallet() {
+    const notice = document.getElementById("authNotice");
+    if (!this.account) {
+      await this.connectWallet();
+    }
+    if (!this.account) {
+      return;
+    }
+
+    if (notice) {
+      notice.hidden = false;
+      notice.textContent = "Logging in...";
+    }
+
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address: this.account }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Login failed");
+      }
+      if (notice) {
+        notice.textContent = "Login successful.";
+      }
+      await this.updateSessionStatus();
+    } catch (err) {
+      if (notice) {
+        notice.textContent = `Login failed: ${err.message}`;
+      }
+    }
+  },
+
+  async logoutWallet() {
+    const notice = document.getElementById("authNotice");
+    if (notice) {
+      notice.hidden = false;
+      notice.textContent = "Logging out...";
+    }
+
+    try {
+      await fetch("/api/logout", { method: "POST" });
+      if (notice) {
+        notice.textContent = "Logged out.";
+      }
+    } catch (err) {
+      if (notice) {
+        notice.textContent = "Logout failed.";
+      }
+    }
+
+    await this.updateSessionStatus();
   },
 };
 
