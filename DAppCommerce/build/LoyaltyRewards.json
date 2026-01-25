@@ -93,8 +93,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [],
@@ -107,8 +106,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [],
@@ -121,8 +119,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -203,8 +200,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -223,8 +219,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -243,8 +238,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     }
   ],
   "metadata": "{\"compiler\":{\"version\":\"0.8.19+commit.7dd6d404\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"membershipContract\",\"type\":\"address\"}],\"name\":\"MembershipContractUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"paymentContract\",\"type\":\"address\"}],\"name\":\"PaymentContractUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Redeemed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"points\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"xp\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"purchases\",\"type\":\"uint256\"}],\"name\":\"RewardsRecorded\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"membershipContract\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paymentContract\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"purchasesOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"buyer\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"rewardPoints\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"rewardXp\",\"type\":\"uint256\"}],\"name\":\"recordPurchase\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"redeem\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_membershipContract\",\"type\":\"address\"}],\"name\":\"setMembershipContract\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_paymentContract\",\"type\":\"address\"}],\"name\":\"setPaymentContract\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"xpOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/LoyaltyRewards.sol\":\"LoyaltyRewards\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/LoyaltyRewards.sol\":{\"keccak256\":\"0xe7e69ef584c65e19c8ef32a1883e158216d30bc59abc6fc39dd836eec4f757e9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://94870455b332769edb5e06b4e868510f13bb0a669cb3cadce51da9e215cca7b5\",\"dweb:/ipfs/QmdgfCo4FLsxTVmUcSWWXQVBTa9X7oCmPuAhaTNidgw8qP\"]}},\"version\":1}",
@@ -3051,7 +3045,7 @@
   "sourceMap": "180:2527:1:-:0;;;1001:51;;;;;;;;;-1:-1:-1;1026:5:1;:18;;-1:-1:-1;;;;;;1026:18:1;1034:10;1026:18;;;180:2527;;;;;;",
   "deployedSourceMap": "180:2527:1:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;275:33;;;;;-1:-1:-1;;;;;275:33:1;;;;;;-1:-1:-1;;;;;178:32:3;;;160:51;;148:2;133:18;275:33:1;;;;;;;;2374:103;;;;;;:::i;:::-;-1:-1:-1;;;;;2457:12:1;2430:7;2457:12;;;:6;:12;;;;;;;2374:103;;;;737:25:3;;;725:2;710:18;2374:103:1;591:177:3;2485:99:1;;;;;;:::i;:::-;-1:-1:-1;;;;;2563:13:1;2536:7;2563:13;;;:7;:13;;;;;;;2485:99;1060:260;;;;;;:::i;:::-;;:::i;:::-;;211:20;;;;;-1:-1:-1;;;;;211:20:1;;;238:30;;;;;-1:-1:-1;;;;;238:30:1;;;2592:112;;;;;;:::i;:::-;-1:-1:-1;;;;;2677:19:1;2650:7;2677:19;;;:13;:19;;;;;;;2592:112;1620:480;;;;;;:::i;:::-;;:::i;1328:284::-;;;;;;:::i;:::-;;:::i;2108:258::-;;;;;;:::i;:::-;;:::i;1060:260::-;828:5;;-1:-1:-1;;;;;828:5:1;814:10;:19;806:42;;;;-1:-1:-1;;;806:42:1;;1487:2:3;806:42:1;;;1469:21:3;1526:2;1506:18;;;1499:30;-1:-1:-1;;;1545:18:3;;;1538:40;1595:18;;806:42:1;;;;;;;;;-1:-1:-1;;;;;1152:30:1;::::1;1144:67;;;::::0;-1:-1:-1;;;1144:67:1;;1826:2:3;1144:67:1::1;::::0;::::1;1808:21:3::0;1865:2;1845:18;;;1838:30;1904:26;1884:18;;;1877:54;1948:18;;1144:67:1::1;1624:348:3::0;1144:67:1::1;1222:15;:34:::0;;-1:-1:-1;;;;;;1222:34:1::1;-1:-1:-1::0;;;;;1222:34:1;::::1;::::0;;::::1;::::0;;;1272:40:::1;::::0;::::1;::::0;-1:-1:-1;;1272:40:1::1;1060:260:::0;:::o;1620:480::-;932:15;;-1:-1:-1;;;;;932:15:1;918:10;:29;910:63;;;;-1:-1:-1;;;910:63:1;;2179:2:3;910:63:1;;;2161:21:3;2218:2;2198:18;;;2191:30;-1:-1:-1;;;2237:18:3;;;2230:51;2298:18;;910:63:1;1977:345:3;910:63:1;-1:-1:-1;;;;;1731:13:1;::::1;;::::0;;;:6:::1;:13;::::0;;;;:29;;1748:12;;1731:13;:29:::1;::::0;1748:12;;1731:29:::1;:::i;:::-;::::0;;;-1:-1:-1;;;;;;;1771:14:1;::::1;;::::0;;;:7:::1;:14;::::0;;;;:26;;1789:8;;1771:14;:26:::1;::::0;1789:8;;1771:26:::1;:::i;:::-;::::0;;;-1:-1:-1;;;;;;;1808:20:1;::::1;;::::0;;;:13:::1;:20;::::0;;;;:25;;1832:1:::1;::::0;1808:20;:25:::1;::::0;1832:1;;1808:25:::1;:::i;:::-;::::0;;;-1:-1:-1;;1850:18:1::1;::::0;-1:-1:-1;;;;;1850:18:1::1;:32:::0;1846:161:::1;;1914:18;::::0;-1:-1:-1;;;;;1958:14:1;;::::1;1914:18;1958:14:::0;;;:7:::1;:14;::::0;;;;;;;;1974:13:::1;:20:::0;;;;;;;;1899:96;;-1:-1:-1;;;1899:96:1;;;;::::1;2791:51:3::0;;;;2858:18;;;2851:34;;;;2901:18;;;2894:34;1914:18:1;::::1;::::0;1899:51:::1;::::0;2764:18:3;;1899:96:1::1;;;;;;;;;;;;;;;;;::::0;::::1;;;;;;;;;;;;::::0;::::1;;;;;;;;;1846:161;-1:-1:-1::0;;;;;2024:68:1;::::1;2071:20;::::0;;;:13:::1;:20;::::0;;;;;;;;;2024:68;;3141:25:3;;;3182:18;;;3175:34;;;3225:18;;;3218:34;2024:68:1;;::::1;::::0;;;;3129:2:3;2024:68:1;;::::1;1620:480:::0;;;:::o;1328:284::-;828:5;;-1:-1:-1;;;;;828:5:1;814:10;:19;806:42;;;;-1:-1:-1;;;806:42:1;;1487:2:3;806:42:1;;;1469:21:3;1526:2;1506:18;;;1499:30;-1:-1:-1;;;1545:18:3;;;1538:40;1595:18;;806:42:1;1285:334:3;806:42:1;-1:-1:-1;;;;;1426:33:1;::::1;1418:73;;;::::0;-1:-1:-1;;;1418:73:1;;3465:2:3;1418:73:1::1;::::0;::::1;3447:21:3::0;3504:2;3484:18;;;3477:30;3543:29;3523:18;;;3516:57;3590:18;;1418:73:1::1;3263:351:3::0;1418:73:1::1;1502:18;:40:::0;;-1:-1:-1;;;;;;1502:40:1::1;-1:-1:-1::0;;;;;1502:40:1;::::1;::::0;;::::1;::::0;;;1558:46:::1;::::0;::::1;::::0;-1:-1:-1;;1558:46:1::1;1328:284:::0;:::o;2108:258::-;2177:1;2168:6;:10;2160:46;;;;-1:-1:-1;;;2160:46:1;;3821:2:3;2160:46:1;;;3803:21:3;3860:2;3840:18;;;3833:30;3899:25;3879:18;;;3872:53;3942:18;;2160:46:1;3619:347:3;2160:46:1;2232:10;2225:18;;;;:6;:18;;;;;;:28;-1:-1:-1;2225:28:1;2217:58;;;;-1:-1:-1;;;2217:58:1;;4173:2:3;2217:58:1;;;4155:21:3;4212:2;4192:18;;;4185:30;-1:-1:-1;;;4231:18:3;;;4224:47;4288:18;;2217:58:1;3971:341:3;2217:58:1;2293:10;2286:18;;;;:6;:18;;;;;:28;;2308:6;;2286:18;:28;;2308:6;;2286:28;:::i;:::-;;;;-1:-1:-1;;2330:28:1;;737:25:3;;;2339:10:1;;2330:28;;725:2:3;710:18;2330:28:1;;;;;;;2108:258;:::o;222:173:3:-;290:20;;-1:-1:-1;;;;;339:31:3;;329:42;;319:70;;385:1;382;375:12;319:70;222:173;;;:::o;400:186::-;459:6;512:2;500:9;491:7;487:23;483:32;480:52;;;528:1;525;518:12;480:52;551:29;570:9;551:29;:::i;:::-;541:39;400:186;-1:-1:-1;;;400:186:3:o;773:322::-;850:6;858;866;919:2;907:9;898:7;894:23;890:32;887:52;;;935:1;932;925:12;887:52;958:29;977:9;958:29;:::i;:::-;948:39;1034:2;1019:18;;1006:32;;-1:-1:-1;1085:2:3;1070:18;;;1057:32;;773:322;-1:-1:-1;;;773:322:3:o;1100:180::-;1159:6;1212:2;1200:9;1191:7;1187:23;1183:32;1180:52;;;1228:1;1225;1218:12;1180:52;-1:-1:-1;1251:23:3;;1100:180;-1:-1:-1;1100:180:3:o;2327:127::-;2388:10;2383:3;2379:20;2376:1;2369:31;2419:4;2416:1;2409:15;2443:4;2440:1;2433:15;2459:125;2524:9;;;2545:10;;;2542:36;;;2558:18;;:::i;:::-;2459:125;;;;:::o;4317:128::-;4384:9;;;4405:11;;;4402:37;;;4419:18;;:::i",
   "source": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.19;\r\n\r\ninterface IMembershipNFT {\r\n    function updateMembership(address user, uint256 xp, uint256 purchases) external;\r\n}\r\n\r\ncontract LoyaltyRewards {\r\n    address public owner;\r\n    address public paymentContract;\r\n    address public membershipContract;\r\n\r\n    mapping(address => uint256) private points;\r\n    mapping(address => uint256) private xpTotal;\r\n    mapping(address => uint256) private purchaseCount;\r\n\r\n    event RewardsRecorded(address indexed user, uint256 points, uint256 xp, uint256 purchases);\r\n    event Redeemed(address indexed user, uint256 amount);\r\n    event PaymentContractUpdated(address indexed paymentContract);\r\n    event MembershipContractUpdated(address indexed membershipContract);\r\n\r\n    modifier onlyOwner() {\r\n        require(msg.sender == owner, \"Only owner\");\r\n        _;\r\n    }\r\n\r\n    modifier onlyPayment() {\r\n        require(msg.sender == paymentContract, \"Only payment contract\");\r\n        _;\r\n    }\r\n\r\n    constructor() {\r\n        owner = msg.sender;\r\n    }\r\n\r\n    function setPaymentContract(address _paymentContract) external onlyOwner {\r\n        require(_paymentContract != address(0), \"Invalid payment contract\");\r\n        paymentContract = _paymentContract;\r\n        emit PaymentContractUpdated(_paymentContract);\r\n    }\r\n\r\n    function setMembershipContract(address _membershipContract) external onlyOwner {\r\n        require(_membershipContract != address(0), \"Invalid membership contract\");\r\n        membershipContract = _membershipContract;\r\n        emit MembershipContractUpdated(_membershipContract);\r\n    }\r\n\r\n    function recordPurchase(address buyer, uint256 rewardPoints, uint256 rewardXp) external onlyPayment {\r\n        points[buyer] += rewardPoints;\r\n        xpTotal[buyer] += rewardXp;\r\n        purchaseCount[buyer] += 1;\r\n\r\n        if (membershipContract != address(0)) {\r\n            IMembershipNFT(membershipContract).updateMembership(buyer, xpTotal[buyer], purchaseCount[buyer]);\r\n        }\r\n\r\n        emit RewardsRecorded(buyer, rewardPoints, rewardXp, purchaseCount[buyer]);\r\n    }\r\n\r\n    function redeem(uint256 amount) external {\r\n        require(amount > 0, \"Amount must be positive\");\r\n        require(points[msg.sender] >= amount, \"Not enough points\");\r\n        points[msg.sender] -= amount;\r\n        emit Redeemed(msg.sender, amount);\r\n    }\r\n\r\n    function balanceOf(address user) external view returns (uint256) {\r\n        return points[user];\r\n    }\r\n\r\n    function xpOf(address user) external view returns (uint256) {\r\n        return xpTotal[user];\r\n    }\r\n\r\n    function purchasesOf(address user) external view returns (uint256) {\r\n        return purchaseCount[user];\r\n    }\r\n}\r\n",
-  "sourcePath": "C:\\Users\\24026513\\OneDrive - Republic Polytechnic\\Y2\\Sem 2\\C373\\C373 FA 2.0\\C373-FA-2.0\\DAppCommerce\\contracts\\LoyaltyRewards.sol",
+  "sourcePath": "C:\\Users\\24026513\\OneDrive - Republic Polytechnic\\Y2\\Sem 2\\C373\\C373 FA 2.0\\C373-FA-2.0\\C373-FA-2.0\\DAppCommerce\\contracts\\LoyaltyRewards.sol",
   "ast": {
     "absolutePath": "project:/contracts/LoyaltyRewards.sol",
     "exportedSymbols": {
@@ -6555,8 +6549,7 @@
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-01-20T07:10:50.159Z",
-  "networkType": "ethereum",
+  "updatedAt": "2026-01-25T13:39:17.576Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},
