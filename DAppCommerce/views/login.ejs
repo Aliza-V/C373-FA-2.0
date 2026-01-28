@@ -12,29 +12,43 @@
         <a href="/">Home</a>
         <a href="/about">About Us</a>
         <a href="/account">Wallet / Account</a>
+        <a href="/profile">Profile</a>
         <a class="active" href="/login">Login</a>
         <a href="/register">Register</a>
       </div>
-      <button class="button ghost" id="connectWallet">Connect Wallet</button>
+      <div class="nav-actions">
+        <a class="button ghost" href="/profile">Profile</a>
+        <button class="button ghost" id="connectWallet">Connect Wallet</button>
+      </div>
     </nav>
 
     <main class="container">
       <section class="card auth-card">
         <h1>Member login</h1>
-        <p class="muted">Use your MetaMask wallet address as your identity.</p>
-        <div class="auth-actions">
-          <button class="button" id="loginWallet">Login with MetaMask</button>
-          <a class="button ghost" href="/register">Register instead</a>
-        </div>
+        <p class="muted">Sign in with your email and password. Connect MetaMask after login to pay.</p>
+        <form id="loginForm" class="auth-form">
+          <label class="field">
+            <span>Email</span>
+            <input id="loginEmail" type="email" placeholder="you@example.com" required />
+          </label>
+          <label class="field">
+            <span>Password</span>
+            <input id="loginPassword" type="password" placeholder="••••••••" required />
+          </label>
+          <div class="auth-actions">
+            <button class="button" type="submit">Login</button>
+            <a class="button ghost" href="/register">Register instead</a>
+          </div>
+        </form>
         <p class="muted">Current session</p>
-        <p id="sessionAddress" class="mono">Not logged in</p>
+        <p id="sessionEmail" class="mono">Not logged in</p>
         <div class="notice" id="authNotice" hidden></div>
       </section>
     </main>
 
     <footer class="footer">
       <span>FlexChain Fitness c 2026</span>
-      <span>Secure wallet login</span>
+      <span>Secure email login</span>
       <span class="server-status">Listening at <%= serverUrl || 'http://localhost:3000' %></span>
     </footer>
 

@@ -1,11 +1,11 @@
 const path = require("path");
-const fs = require("fs");
 const express = require("express");
 const { Web3 } = require("web3");
 
 const GymMembershipPaymentArtifact = require("../build/GymMembershipPayment.json");
 const LoyaltyRewardsArtifact = require("../build/LoyaltyRewards.json");
 const MembershipNFTArtifact = require("../build/MembershipNFT.json");
+const UserRegistryArtifact = require("../build/UserRegistry.json");
 
 const app = express();
 const web3 = new Web3("http://127.0.0.1:7545");
@@ -23,26 +23,19 @@ let contracts = {};
 let defaultAccount = null;
 let networkId = null;
 
-const DATA_DIR = path.join(__dirname, "..", "data");
-const ACCOUNTS_PATH = path.join(DATA_DIR, "accounts.json");
-
-function normalizeAddress(address) {
-  return address ? address.toLowerCase() : "";
+function normalizeEmail(email) {
+  return email ? email.trim().toLowerCase() : "";
 }
 
-function loadAccounts() {
-  try {
-    const raw = fs.readFileSync(ACCOUNTS_PATH, "utf8");
-    const data = JSON.parse(raw);
-    return Array.isArray(data) ? data : [];
-  } catch (err) {
-    return [];
+function hashValue(value) {
+  return web3.utils.keccak256(value);
+}
+
+function addGasBuffer(gasEstimate) {
+  if (typeof gasEstimate === "bigint") {
+    return gasEstimate + 50000n;
   }
-}
-
-function saveAccounts(accounts) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  fs.writeFileSync(ACCOUNTS_PATH, JSON.stringify(accounts, null, 2));
+  return Number(gasEstimate) + 50000;
 }
 
 function parseCookies(cookieHeader) {
@@ -59,17 +52,17 @@ function parseCookies(cookieHeader) {
   }, {});
 }
 
-function getSessionAddress(req) {
+function getSessionEmail(req) {
   const cookies = parseCookies(req.headers.cookie);
-  return cookies.walletAddress || null;
+  return cookies.userEmail || null;
 }
 
-function setSessionAddress(res, address) {
-  res.cookie("walletAddress", address, { httpOnly: true, sameSite: "lax", path: "/" });
+function setSessionEmail(res, email) {
+  res.cookie("userEmail", email, { httpOnly: true, sameSite: "lax", path: "/" });
 }
 
-function clearSessionAddress(res) {
-  res.cookie("walletAddress", "", { httpOnly: true, sameSite: "lax", path: "/", maxAge: 0 });
+function clearSessionEmail(res) {
+  res.cookie("userEmail", "", { httpOnly: true, sameSite: "lax", path: "/", maxAge: 0 });
 }
 
 async function loadContracts() {
@@ -80,8 +73,9 @@ async function loadContracts() {
   const paymentAddress = GymMembershipPaymentArtifact.networks?.[networkId]?.address;
   const loyaltyAddress = LoyaltyRewardsArtifact.networks?.[networkId]?.address;
   const membershipAddress = MembershipNFTArtifact.networks?.[networkId]?.address;
+  const userRegistryAddress = UserRegistryArtifact.networks?.[networkId]?.address;
 
-  if (!paymentAddress || !loyaltyAddress || !membershipAddress) {
+  if (!paymentAddress || !loyaltyAddress || !membershipAddress || !userRegistryAddress) {
     throw new Error("Contracts are not migrated to the current network");
   }
 
@@ -89,6 +83,7 @@ async function loadContracts() {
     payment: new web3.eth.Contract(GymMembershipPaymentArtifact.abi, paymentAddress),
     loyalty: new web3.eth.Contract(LoyaltyRewardsArtifact.abi, loyaltyAddress),
     membership: new web3.eth.Contract(MembershipNFTArtifact.abi, membershipAddress),
+    users: new web3.eth.Contract(UserRegistryArtifact.abi, userRegistryAddress),
   };
 }
 
@@ -143,7 +138,11 @@ app.get("/product/:id", async (req, res) => {
 });
 
 app.get("/account", (req, res) => {
-  res.render("account", { account: defaultAccount, serverUrl: SERVER_URL });
+  res.render("account", { account: defaultAccount, serverUrl: SERVER_URL, activePage: "account" });
+});
+
+app.get("/profile", (req, res) => {
+  res.render("account", { account: defaultAccount, serverUrl: SERVER_URL, activePage: "profile" });
 });
 
 app.get("/about", (req, res) => {
@@ -173,52 +172,154 @@ app.get("/api/contracts", (req, res) => {
     paymentAddress: contracts.payment?.options.address || null,
     loyaltyAddress: contracts.loyalty?.options.address || null,
     membershipAddress: contracts.membership?.options.address || null,
+    userRegistryAddress: contracts.users?.options.address || null,
   });
 });
 
-app.get("/api/session", (req, res) => {
-  res.json({ address: getSessionAddress(req) });
+app.get("/api/session", async (req, res) => {
+  const email = getSessionEmail(req);
+  if (!email || !contracts.users) {
+    return res.json({ email: null, profile: null });
+  }
+
+  try {
+    const emailHash = hashValue(normalizeEmail(email));
+    const profile = await contracts.users.methods.getProfile(emailHash).call();
+    return res.json({
+      email,
+      profile: {
+        name: profile[0],
+        particulars: profile[1],
+        wallet: profile[2],
+      },
+    });
+  } catch (err) {
+    return res.json({ email, profile: null });
+  }
 });
 
-app.post("/api/register", (req, res) => {
-  const { address } = req.body;
-  if (!address || !web3.utils.isAddress(address)) {
-    return res.status(400).json({ error: "Invalid wallet address" });
+app.post("/api/register", async (req, res) => {
+  const { email, password, name, particulars } = req.body;
+  const normalizedEmail = normalizeEmail(email);
+
+  if (!normalizedEmail || !password || !name) {
+    return res.status(400).json({ error: "Name, email, and password are required" });
   }
 
-  const accounts = loadAccounts();
-  const normalized = normalizeAddress(address);
-  const exists = accounts.some((account) => normalizeAddress(account.address) === normalized);
-
-  if (!exists) {
-    accounts.push({ address, createdAt: new Date().toISOString() });
-    saveAccounts(accounts);
+  if (!/^\S+@\S+\.\S+$/.test(normalizedEmail)) {
+    return res.status(400).json({ error: "Invalid email address" });
   }
 
-  setSessionAddress(res, address);
-  return res.json({ ok: true, address, isNew: !exists });
+  if (!contracts.users) {
+    return res.status(500).json({ error: "User registry not available" });
+  }
+  if (!defaultAccount) {
+    return res.status(500).json({ error: "Server wallet not ready" });
+  }
+
+  const emailHash = hashValue(normalizedEmail);
+  const passwordHash = hashValue(password);
+
+  try {
+    const exists = await contracts.users.methods.userExists(emailHash).call();
+    if (exists) {
+      return res.status(409).json({ error: "Email already registered" });
+    }
+    const registerCall = contracts.users.methods.register(
+      emailHash,
+      name.trim(),
+      (particulars || "").trim(),
+      passwordHash
+    );
+    const gasEstimate = await registerCall.estimateGas({ from: defaultAccount });
+    await registerCall.send({ from: defaultAccount, gas: addGasBuffer(gasEstimate) });
+
+    setSessionEmail(res, normalizedEmail);
+    return res.json({
+      ok: true,
+      email: normalizedEmail,
+      name: name.trim(),
+      particulars: (particulars || "").trim(),
+    });
+  } catch (err) {
+    return res.status(409).json({ error: err.message || "Registration failed" });
+  }
 });
 
 app.post("/api/login", (req, res) => {
+  const { email, password } = req.body;
+  const normalizedEmail = normalizeEmail(email);
+
+  if (!normalizedEmail || !password) {
+    return res.status(400).json({ error: "Email and password are required" });
+  }
+
+  if (!contracts.users) {
+    return res.status(500).json({ error: "User registry not available" });
+  }
+
+  const emailHash = hashValue(normalizedEmail);
+  const passwordHash = hashValue(password);
+
+  contracts.users.methods
+    .verifyLogin(emailHash, passwordHash)
+    .call()
+    .then((ok) => {
+      if (!ok) {
+        throw new Error("Invalid email or password");
+      }
+      setSessionEmail(res, normalizedEmail);
+      return contracts.users.methods.getProfile(emailHash).call();
+    })
+    .then((profile) => {
+      res.json({
+        ok: true,
+        email: normalizedEmail,
+        profile: {
+          name: profile[0],
+          particulars: profile[1],
+          wallet: profile[2],
+        },
+      });
+    })
+    .catch((err) => {
+      res.status(401).json({ error: err.message || "Login failed" });
+    });
+});
+
+app.post("/api/link-wallet", async (req, res) => {
+  const email = getSessionEmail(req);
   const { address } = req.body;
+
+  if (!email) {
+    return res.status(401).json({ error: "Login required" });
+  }
+
   if (!address || !web3.utils.isAddress(address)) {
     return res.status(400).json({ error: "Invalid wallet address" });
   }
 
-  const accounts = loadAccounts();
-  const normalized = normalizeAddress(address);
-  const exists = accounts.some((account) => normalizeAddress(account.address) === normalized);
-
-  if (!exists) {
-    return res.status(404).json({ error: "Wallet not registered" });
+  if (!contracts.users) {
+    return res.status(500).json({ error: "User registry not available" });
+  }
+  if (!defaultAccount) {
+    return res.status(500).json({ error: "Server wallet not ready" });
   }
 
-  setSessionAddress(res, address);
-  return res.json({ ok: true, address });
+  const emailHash = hashValue(normalizeEmail(email));
+
+  try {
+    const linkCall = contracts.users.methods.setWallet(emailHash, address);
+    const gasEstimate = await linkCall.estimateGas({ from: defaultAccount });
+    await linkCall.send({ from: defaultAccount, gas: addGasBuffer(gasEstimate) });
+    return res.json({ ok: true, address });
+  } catch (err) {
+    return res.status(500).json({ error: err.message || "Unable to link wallet" });
+  }
 });
 
 app.post("/api/logout", (req, res) => {
-  clearSessionAddress(res);
+  clearSessionEmail(res);
   res.json({ ok: true });
 });
 

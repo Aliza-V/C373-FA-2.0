@@ -1,20 +1,29 @@
-﻿const DApp = {
+const DApp = {
   web3: null,
   account: null,
   contracts: {},
   addresses: {},
-  sessionAddress: null,
+  sessionEmail: null,
+  sessionProfile: null,
+  sessionWallet: null,
 
   async init() {
+    this.bindUI();
+    await this.updateSessionStatus();
+
     if (window.ethereum) {
       this.web3 = new Web3(window.ethereum);
       await this.loadAddresses();
-      this.bindUI();
-      this.refreshUI();
+      await this.refreshUI();
+    } else {
+      this.updateConnectButton();
     }
   },
 
   async loadAddresses() {
+    if (!this.web3) {
+      return;
+    }
     const res = await fetch("/api/contracts");
     this.addresses = await res.json();
 
@@ -71,24 +80,41 @@
       });
     }
 
-    const registerButton = document.getElementById("registerWallet");
-    if (registerButton) {
-      registerButton.addEventListener("click", async () => {
-        await this.registerWallet();
+    const registerForm = document.getElementById("registerForm");
+    if (registerForm) {
+      registerForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        await this.registerAccount();
       });
     }
 
-    const loginButton = document.getElementById("loginWallet");
-    if (loginButton) {
-      loginButton.addEventListener("click", async () => {
-        await this.loginWallet();
+    const loginForm = document.getElementById("loginForm");
+    if (loginForm) {
+      loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        await this.loginAccount();
       });
     }
 
-    const logoutButton = document.getElementById("logoutWallet");
+    const linkWalletButton = document.getElementById("linkWallet");
+    if (linkWalletButton) {
+      linkWalletButton.addEventListener("click", async () => {
+        await this.connectWallet();
+        await this.linkWallet();
+      });
+    }
+
+    const logoutButton = document.getElementById("logoutUser");
     if (logoutButton) {
       logoutButton.addEventListener("click", async () => {
-        await this.logoutWallet();
+        await this.logoutUser();
+      });
+    }
+
+    const cancelButton = document.getElementById("cancelMembership");
+    if (cancelButton) {
+      cancelButton.addEventListener("click", async () => {
+        await this.cancelMembership();
       });
     }
   },
@@ -98,6 +124,10 @@
       alert("MetaMask is required to continue.");
       return;
     }
+    if (!this.web3) {
+      this.web3 = new Web3(window.ethereum);
+      await this.loadAddresses();
+    }
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     this.account = accounts[0];
     this.updateWalletDisplay();
@@ -105,8 +135,8 @@
 
   updateWalletDisplay() {
     const walletDisplay = document.getElementById("walletAddress");
-    if (walletDisplay && this.account) {
-      walletDisplay.textContent = this.account;
+    if (walletDisplay) {
+      walletDisplay.textContent = this.account || this.sessionWallet || "Not connected";
     }
     this.updateConnectButton();
   },
@@ -114,6 +144,11 @@
   updateConnectButton() {
     const connectButton = document.getElementById("connectWallet");
     if (!connectButton) {
+      return;
+    }
+    if (!window.ethereum) {
+      connectButton.textContent = "MetaMask not found";
+      connectButton.disabled = true;
       return;
     }
     if (this.account) {
@@ -128,26 +163,49 @@
   },
 
   async updateSessionStatus() {
-    const sessionDisplay = document.getElementById("sessionAddress");
-    const logoutButton = document.getElementById("logoutWallet");
-    if (!sessionDisplay && !logoutButton) {
-      return;
-    }
+    const sessionDisplay = document.getElementById("sessionEmail");
+    const logoutButton = document.getElementById("logoutUser");
+    const linkWalletButton = document.getElementById("linkWallet");
+    const profileName = document.getElementById("profileName");
+    const profileParticulars = document.getElementById("profileParticulars");
+    const profileEmail = document.getElementById("profileEmail");
+    const profileWallet = document.getElementById("profileWallet");
 
     try {
       const res = await fetch("/api/session");
       const data = await res.json();
-      this.sessionAddress = data.address || null;
+      this.sessionEmail = data.email || null;
+      this.sessionProfile = data.profile || null;
+      this.sessionWallet = data.profile?.wallet || null;
     } catch (err) {
-      this.sessionAddress = null;
+      this.sessionEmail = null;
+      this.sessionProfile = null;
+      this.sessionWallet = null;
     }
 
     if (sessionDisplay) {
-      sessionDisplay.textContent = this.sessionAddress || "Not logged in";
+      sessionDisplay.textContent = this.sessionEmail || "Not logged in";
     }
     if (logoutButton) {
-      logoutButton.hidden = !this.sessionAddress;
+      logoutButton.hidden = !this.sessionEmail;
     }
+    if (linkWalletButton) {
+      linkWalletButton.hidden = !this.sessionEmail;
+    }
+    if (profileName) {
+      profileName.textContent = this.sessionProfile?.name || "-";
+    }
+    if (profileParticulars) {
+      profileParticulars.textContent = this.sessionProfile?.particulars || "-";
+    }
+    if (profileEmail) {
+      profileEmail.textContent = this.sessionEmail || "-";
+    }
+    if (profileWallet) {
+      profileWallet.textContent = this.sessionWallet || "Not linked";
+    }
+
+    this.updateWalletDisplay();
   },
 
   async purchaseProduct(productId, priceWei) {
@@ -192,9 +250,15 @@
   },
 
   async refreshUI() {
+    await this.updateSessionStatus();
+
+    if (!this.web3) {
+      return;
+    }
+
     if (!this.account) {
       const accounts = await this.web3.eth.getAccounts();
-      this.account = accounts[0];
+      this.account = accounts[0] || null;
       this.updateWalletDisplay();
     } else {
       this.updateConnectButton();
@@ -202,22 +266,24 @@
 
     await this.updatePurchaseStatus();
     await this.updateAccountStats();
-    await this.updateSessionStatus();
+    await this.updateActiveMembership();
   },
 
   async updatePurchaseStatus() {
     const status = document.getElementById("purchaseStatus");
     const buyButton = document.getElementById("buyButton");
-    if (!status || !buyButton || !this.contracts.payment) {
+    const targetAddress = this.account || this.sessionWallet;
+    if (!status || !buyButton || !this.contracts.payment || !targetAddress) {
       return;
     }
 
     const productId = buyButton.dataset.productId;
-    const purchased = await this.contracts.payment.methods
-      .hasPurchased(this.account, productId)
+    const activeId = await this.contracts.payment.methods
+      .activeMembershipOf(targetAddress)
       .call();
-    status.textContent = purchased ? "Status: Active" : "Status: Not active";
-    buyButton.disabled = purchased;
+    const isActive = Number(activeId) === Number(productId);
+    status.textContent = isActive ? "Status: Active" : "Status: Not active";
+    buyButton.disabled = isActive;
   },
 
   async updateAccountStats() {
@@ -234,11 +300,16 @@
       return;
     }
 
+    const targetAddress = this.account || this.sessionWallet;
+    if (!targetAddress) {
+      return;
+    }
+
     const [points, xp, purchases, tierLabel] = await Promise.all([
-      this.contracts.loyalty.methods.balanceOf(this.account).call(),
-      this.contracts.loyalty.methods.xpOf(this.account).call(),
-      this.contracts.loyalty.methods.purchasesOf(this.account).call(),
-      this.contracts.membership.methods.tierLabel(this.account).call(),
+      this.contracts.loyalty.methods.balanceOf(targetAddress).call(),
+      this.contracts.loyalty.methods.xpOf(targetAddress).call(),
+      this.contracts.loyalty.methods.purchasesOf(targetAddress).call(),
+      this.contracts.membership.methods.tierLabel(targetAddress).call(),
     ]);
 
     pointsEl.textContent = points;
@@ -266,36 +337,46 @@
     });
   },
 
-  async registerWallet() {
+  async registerAccount() {
     const notice = document.getElementById("authNotice");
-    if (!this.account) {
-      await this.connectWallet();
-    }
-    if (!this.account) {
+    const nameInput = document.getElementById("registerName");
+    const emailInput = document.getElementById("registerEmail");
+    const passwordInput = document.getElementById("registerPassword");
+    const particularsInput = document.getElementById("registerParticulars");
+
+    const name = nameInput ? nameInput.value.trim() : "";
+    const email = emailInput ? emailInput.value.trim() : "";
+    const password = passwordInput ? passwordInput.value : "";
+    const particulars = particularsInput ? particularsInput.value.trim() : "";
+
+    if (!name || !email || !password) {
+      if (notice) {
+        notice.hidden = false;
+        notice.textContent = "Please fill in name, email, and password.";
+      }
       return;
     }
 
     if (notice) {
       notice.hidden = false;
-      notice.textContent = "Registering wallet...";
+      notice.textContent = "Creating account...";
     }
 
     try {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address: this.account }),
+        body: JSON.stringify({ name, email, password, particulars }),
       });
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.error || "Registration failed");
       }
       if (notice) {
-        notice.textContent = data.isNew
-          ? "Registration complete. You are now logged in."
-          : "Wallet already registered. You are now logged in.";
+        notice.textContent = "Registration complete. You are now logged in.";
       }
       await this.updateSessionStatus();
+      window.location.href = "/account";
     } catch (err) {
       if (notice) {
         notice.textContent = `Registration failed: ${err.message}`;
@@ -303,12 +384,19 @@
     }
   },
 
-  async loginWallet() {
+  async loginAccount() {
     const notice = document.getElementById("authNotice");
-    if (!this.account) {
-      await this.connectWallet();
-    }
-    if (!this.account) {
+    const emailInput = document.getElementById("loginEmail");
+    const passwordInput = document.getElementById("loginPassword");
+
+    const email = emailInput ? emailInput.value.trim() : "";
+    const password = passwordInput ? passwordInput.value : "";
+
+    if (!email || !password) {
+      if (notice) {
+        notice.hidden = false;
+        notice.textContent = "Please enter your email and password.";
+      }
       return;
     }
 
@@ -321,16 +409,17 @@
       const res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address: this.account }),
+        body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.error || "Login failed");
       }
       if (notice) {
-        notice.textContent = "Login successful.";
+        notice.textContent = "Login successful. Connect MetaMask to pay or redeem rewards.";
       }
       await this.updateSessionStatus();
+      window.location.href = "/account";
     } catch (err) {
       if (notice) {
         notice.textContent = `Login failed: ${err.message}`;
@@ -338,7 +427,7 @@
     }
   },
 
-  async logoutWallet() {
+  async logoutUser() {
     const notice = document.getElementById("authNotice");
     if (notice) {
       notice.hidden = false;
@@ -358,10 +447,115 @@
 
     await this.updateSessionStatus();
   },
+
+  async linkWallet() {
+    const notice = document.getElementById("authNotice");
+    if (!this.sessionEmail) {
+      if (notice) {
+        notice.hidden = false;
+        notice.textContent = "Please log in before linking a wallet.";
+      }
+      return;
+    }
+    if (!this.account) {
+      return;
+    }
+
+    if (notice) {
+      notice.hidden = false;
+      notice.textContent = "Linking wallet...";
+    }
+
+    try {
+      const res = await fetch("/api/link-wallet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address: this.account }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Linking failed");
+      }
+      if (notice) {
+        notice.textContent = "Wallet linked to your account.";
+      }
+      await this.updateSessionStatus();
+    } catch (err) {
+      if (notice) {
+        notice.textContent = `Wallet link failed: ${err.message}`;
+      }
+    }
+  },
+
+  async updateActiveMembership() {
+    const nameEl = document.getElementById("activePlanName");
+    const statusEl = document.getElementById("activePlanStatus");
+    const cancelButton = document.getElementById("cancelMembership");
+    if (!nameEl || !statusEl || !cancelButton) {
+      return;
+    }
+
+    const targetAddress = this.account || this.sessionWallet;
+    if (!this.contracts.payment || !targetAddress) {
+      nameEl.textContent = "None";
+      statusEl.textContent = "Inactive";
+      cancelButton.disabled = true;
+      cancelButton.dataset.activeId = "";
+      return;
+    }
+
+    const activeId = await this.contracts.payment.methods
+      .activeMembershipOf(targetAddress)
+      .call();
+
+    if (Number(activeId) === 0) {
+      nameEl.textContent = "None";
+      statusEl.textContent = "Inactive";
+      cancelButton.disabled = true;
+      cancelButton.dataset.activeId = "";
+      return;
+    }
+
+    const product = await this.contracts.payment.methods.getProduct(activeId).call();
+    nameEl.textContent = product[1];
+    statusEl.textContent = "Active";
+    cancelButton.disabled = false;
+    cancelButton.dataset.activeId = activeId;
+  },
+
+  async cancelMembership() {
+    const notice = document.getElementById("cancelNotice");
+    if (!this.account) {
+      await this.connectWallet();
+    }
+    if (!this.contracts.payment || !this.account) {
+      return;
+    }
+
+    if (notice) {
+      notice.hidden = false;
+      notice.textContent = "Canceling membership...";
+    }
+
+    try {
+      await this.contracts.payment.methods.cancelMembership().send({ from: this.account });
+      if (notice) {
+        notice.textContent = "Membership canceled.";
+      }
+      await this.refreshUI();
+    } catch (err) {
+      if (notice) {
+        notice.textContent = `Cancel failed: ${err.message}`;
+      }
+    }
+  },
 };
 
 window.addEventListener("load", () => {
   if (typeof Web3 !== "undefined") {
     DApp.init().catch((err) => console.error(err));
+  } else {
+    DApp.bindUI();
+    DApp.updateSessionStatus().catch((err) => console.error(err));
   }
 });

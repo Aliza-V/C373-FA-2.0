@@ -12,22 +12,44 @@
         <a href="/">Home</a>
         <a href="/about">About Us</a>
         <a href="/account">Wallet / Account</a>
+        <a href="/profile">Profile</a>
         <a href="/login">Login</a>
         <a class="active" href="/register">Register</a>
       </div>
-      <button class="button ghost" id="connectWallet">Connect Wallet</button>
+      <div class="nav-actions">
+        <a class="button ghost" href="/profile">Profile</a>
+        <button class="button ghost" id="connectWallet">Connect Wallet</button>
+      </div>
     </nav>
 
     <main class="container">
       <section class="card auth-card">
-        <h1>Register your wallet</h1>
-        <p class="muted">Create a membership account using your MetaMask wallet address.</p>
-        <div class="auth-actions">
-          <button class="button" id="registerWallet">Register with MetaMask</button>
-          <a class="button ghost" href="/login">Login instead</a>
-        </div>
+        <h1>Create your account</h1>
+        <p class="muted">Register with email and password. Link MetaMask after login.</p>
+        <form id="registerForm" class="auth-form">
+          <label class="field">
+            <span>Full name</span>
+            <input id="registerName" type="text" placeholder="Alex Tan" required />
+          </label>
+          <label class="field">
+            <span>Particulars</span>
+            <input id="registerParticulars" type="text" placeholder="Student ID, phone, or notes" />
+          </label>
+          <label class="field">
+            <span>Email</span>
+            <input id="registerEmail" type="email" placeholder="you@example.com" required />
+          </label>
+          <label class="field">
+            <span>Password</span>
+            <input id="registerPassword" type="password" placeholder="••••••••" required />
+          </label>
+          <div class="auth-actions">
+            <button class="button" type="submit">Create account</button>
+            <a class="button ghost" href="/login">Login instead</a>
+          </div>
+        </form>
         <p class="muted">Current session</p>
-        <p id="sessionAddress" class="mono">Not logged in</p>
+        <p id="sessionEmail" class="mono">Not logged in</p>
         <div class="notice" id="authNotice" hidden></div>
       </section>
     </main>

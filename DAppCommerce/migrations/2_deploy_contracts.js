@@ -1,6 +1,7 @@
 const GymMembershipPayment = artifacts.require("GymMembershipPayment");
 const LoyaltyRewards = artifacts.require("LoyaltyRewards");
 const MembershipNFT = artifacts.require("MembershipNFT");
+const UserRegistry = artifacts.require("UserRegistry");
 
 module.exports = async function (deployer) {
   await deployer.deploy(LoyaltyRewards);
@@ -11,6 +12,8 @@ module.exports = async function (deployer) {
 
   await deployer.deploy(GymMembershipPayment, loyalty.address);
   const payment = await GymMembershipPayment.deployed();
+
+  await deployer.deploy(UserRegistry);
 
   await loyalty.setPaymentContract(payment.address);
   await loyalty.setMembershipContract(membership.address);

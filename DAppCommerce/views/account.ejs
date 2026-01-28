@@ -11,11 +11,15 @@
       <div class="nav-links">
         <a href="/">Home</a>
         <a href="/about">About Us</a>
-        <a class="active" href="/account">Wallet / Account</a>
+        <a class="<%= activePage === 'account' ? 'active' : '' %>" href="/account">Wallet / Account</a>
+        <a class="<%= activePage === 'profile' ? 'active' : '' %>" href="/profile">Profile</a>
         <a href="/login">Login</a>
         <a href="/register">Register</a>
       </div>
-      <button class="button ghost" id="connectWallet">Connect Wallet</button>
+      <div class="nav-actions">
+        <a class="button ghost" href="/profile">Profile</a>
+        <button class="button ghost" id="connectWallet">Connect Wallet</button>
+      </div>
     </nav>
 
     <main class="container">
@@ -34,18 +38,58 @@
         <div class="card">
           <div class="section-header">
             <div>
-              <h3>Member login</h3>
-              <p class="muted">Log in with your MetaMask wallet address.</p>
+              <h3>Profile</h3>
+              <p class="muted">Account details stored on-chain in Ganache.</p>
             </div>
-            <button class="button ghost" id="logoutWallet" hidden>Logout</button>
+            <button class="button ghost" id="logoutUser" hidden>Logout</button>
           </div>
-          <p class="muted">Logged in wallet</p>
-          <p id="sessionAddress" class="mono">Not logged in</p>
+          <div class="grid two profile-grid">
+            <div class="info-block">
+              <span class="label">Name</span>
+              <p id="profileName">-</p>
+            </div>
+            <div class="info-block">
+              <span class="label">Particulars</span>
+              <p id="profileParticulars">-</p>
+            </div>
+            <div class="info-block">
+              <span class="label">Email</span>
+              <p id="profileEmail">-</p>
+            </div>
+            <div class="info-block">
+              <span class="label">Linked wallet</span>
+              <p id="profileWallet" class="mono">Not linked</p>
+            </div>
+          </div>
           <div class="auth-actions">
             <a class="button ghost" href="/login">Login</a>
             <a class="button" href="/register">Register</a>
+            <button class="button ghost" id="linkWallet" hidden>Link MetaMask</button>
           </div>
+          <p class="muted">Current session</p>
+          <p id="sessionEmail" class="mono">Not logged in</p>
           <div class="notice" id="authNotice" hidden></div>
+        </div>
+
+        <div class="card">
+          <div class="section-header">
+            <div>
+              <h3>Active membership</h3>
+              <p class="muted">Only one plan can be active at a time.</p>
+            </div>
+            <button class="button ghost" id="cancelMembership" disabled>Cancel</button>
+          </div>
+          <div class="grid two">
+            <div class="info-block">
+              <span class="label">Plan</span>
+              <p id="activePlanName">None</p>
+            </div>
+            <div class="info-block">
+              <span class="label">Status</span>
+              <p id="activePlanStatus">Inactive</p>
+            </div>
+          </div>
+          <div class="notice" id="cancelNotice" hidden></div>
         </div>
 
         <div class="grid three">

@@ -55,6 +55,12 @@ a {
   color: var(--muted);
 }
 
+.nav-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
 .nav-links a.active {
   color: var(--accent);
 }
@@ -322,6 +328,23 @@ a {
   margin: 0 auto;
 }
 
+.auth-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  font-size: 0.95rem;
+}
+
+.field span {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
 .auth-actions {
   display: flex;
   gap: 12px;
@@ -371,6 +394,18 @@ input {
   border-radius: 10px;
   padding: 10px 12px;
   min-width: 180px;
+  width: 100%;
+}
+
+.info-block {
+  background: var(--panel-light);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.info-block p {
+  margin: 8px 0 0;
 }
 
 .muted {

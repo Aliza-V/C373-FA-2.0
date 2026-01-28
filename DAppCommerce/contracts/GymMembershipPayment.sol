@@ -20,9 +20,11 @@ contract GymMembershipPayment {
 
     mapping(uint256 => Product) private products;
     mapping(address => mapping(uint256 => bool)) private purchases;
+    mapping(address => uint256) private activeMembership;
 
     event ProductAdded(uint256 indexed id, string name, uint256 priceWei);
     event ProductPurchased(uint256 indexed id, address indexed buyer, uint256 priceWei);
+    event MembershipCanceled(address indexed buyer, uint256 indexed id);
     event LoyaltyContractUpdated(address indexed loyaltyContract);
 
     modifier onlySeller() {
@@ -68,13 +70,24 @@ contract GymMembershipPayment {
         return purchases[_buyer][_id];
     }
 
+    function activeMembershipOf(address _buyer) external view returns (uint256) {
+        return activeMembership[_buyer];
+    }
+
     function purchaseProduct(uint256 _id) external payable {
         Product memory product = products[_id];
         require(product.id != 0, "Invalid product");
         require(product.active, "Product inactive");
         require(msg.value == product.priceWei, "Incorrect ETH value");
+        require(activeMembership[msg.sender] != _id, "Membership already active");
+
+        uint256 previous = activeMembership[msg.sender];
+        if (previous != 0 && previous != _id) {
+            purchases[msg.sender][previous] = false;
+        }
 
         purchases[msg.sender][_id] = true;
+        activeMembership[msg.sender] = _id;
         (bool sent, ) = seller.call{value: msg.value}("");
         require(sent, "Payment failed");
 
@@ -86,5 +99,13 @@ contract GymMembershipPayment {
         ILoyaltyRewards(loyaltyContract).recordPurchase(msg.sender, points, xp);
 
         emit ProductPurchased(_id, msg.sender, product.priceWei);
+    }
+
+    function cancelMembership() external {
+        uint256 current = activeMembership[msg.sender];
+        require(current != 0, "No active membership");
+        purchases[msg.sender][current] = false;
+        activeMembership[msg.sender] = 0;
+        emit MembershipCanceled(msg.sender, current);
     }
 }
