@@ -34,9 +34,10 @@ contract("LoyaltyRewards", (accounts) => {
     const { loyalty, payment } = await deployAll();
     const price = web3.utils.toWei("0.1", "ether");
     await payment.addProduct("Bundle", "Starter bundle", price, { from: seller });
+    await payment.addProduct("Upgrade", "Upgrade bundle", price, { from: seller });
 
     await payment.purchaseProduct(1, { from: buyer, value: price });
-    await payment.purchaseProduct(1, { from: buyer, value: price });
+    await payment.purchaseProduct(2, { from: buyer, value: price });
 
     const before = await loyalty.balanceOf(buyer);
     await loyalty.redeemDiscount(1000, { from: buyer });
@@ -51,13 +52,15 @@ contract("LoyaltyRewards", (accounts) => {
     const { loyalty, payment } = await deployAll();
     const price = web3.utils.toWei("0.1", "ether");
     await payment.addProduct("Plan", "Membership plan", price, { from: seller });
+    await payment.addProduct("Plan Plus", "Premium plan", price, { from: seller });
+    await payment.addProduct("Plan Ultra", "Ultimate plan", price, { from: seller });
 
     await payment.purchaseProduct(1, { from: buyer, value: price });
-    await payment.purchaseProduct(1, { from: buyer, value: price });
+    await payment.purchaseProduct(2, { from: buyer, value: price });
     await loyalty.redeemDiscount(1000, { from: buyer });
 
     const discountPrice = web3.utils.toBN(price).muln(90).divn(100);
-    await payment.purchaseProduct(1, { from: buyer, value: discountPrice });
+    await payment.purchaseProduct(3, { from: buyer, value: discountPrice });
 
     const discount = await loyalty.discountBpsOf(buyer);
     assert.equal(discount.toNumber(), 0, "discount should be consumed after purchase");
@@ -67,9 +70,10 @@ contract("LoyaltyRewards", (accounts) => {
     const { loyalty, payment } = await deployAll();
     const price = web3.utils.toWei("0.1", "ether");
     await payment.addProduct("Plan", "Membership plan", price, { from: seller });
+    await payment.addProduct("Plan Plus", "Premium plan", price, { from: seller });
 
     await payment.purchaseProduct(1, { from: buyer, value: price });
-    await payment.purchaseProduct(1, { from: buyer, value: price });
+    await payment.purchaseProduct(2, { from: buyer, value: price });
     await loyalty.redeemDiscount(1000, { from: buyer });
 
     try {

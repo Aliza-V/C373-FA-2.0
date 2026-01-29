@@ -21,10 +21,12 @@ contract("MembershipNFT", (accounts) => {
     const { membership, payment } = await deployAll();
     const price = web3.utils.toWei("0.05", "ether");
     await payment.addProduct("Fruits", "Tropical fruits", price, { from: seller });
+    await payment.addProduct("Veggies", "Fresh veggies", price, { from: seller });
+    await payment.addProduct("Protein", "Protein pack", price, { from: seller });
 
     await payment.purchaseProduct(1, { from: buyer, value: price });
-    await payment.purchaseProduct(1, { from: buyer, value: price });
-    await payment.purchaseProduct(1, { from: buyer, value: price });
+    await payment.purchaseProduct(2, { from: buyer, value: price });
+    await payment.purchaseProduct(3, { from: buyer, value: price });
 
     const tier = await membership.tierOf(buyer);
     assert.equal(tier.toNumber(), 2, "buyer should reach Gold tier");
