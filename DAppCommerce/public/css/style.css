@@ -171,6 +171,17 @@ a {
   gap: 12px;
 }
 
+.reward-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reward-card.locked {
+  opacity: 0.6;
+  filter: grayscale(0.25);
+}
+
 .product-image {
   height: 120px;
   border-radius: 14px;
@@ -385,6 +396,42 @@ a {
   gap: 12px;
   flex-wrap: wrap;
   margin-top: 12px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 10, 15, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 20;
+}
+
+.modal-backdrop[hidden] {
+  display: none;
+}
+
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 24px;
+  width: min(420px, 100%);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+body.modal-open {
+  overflow: hidden;
 }
 
 input {

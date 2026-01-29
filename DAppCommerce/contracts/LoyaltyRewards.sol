@@ -13,9 +13,15 @@ contract LoyaltyRewards {
     mapping(address => uint256) private points;
     mapping(address => uint256) private xpTotal;
     mapping(address => uint256) private purchaseCount;
+    mapping(address => uint256) private pendingDiscountBps;
+
+    uint256 public constant DISCOUNT_BPS_10 = 1000;
+    uint256 public constant DISCOUNT_POINTS_10 = 30;
 
     event RewardsRecorded(address indexed user, uint256 points, uint256 xp, uint256 purchases);
     event Redeemed(address indexed user, uint256 amount);
+    event DiscountRedeemed(address indexed user, uint256 bps, uint256 pointsSpent);
+    event DiscountConsumed(address indexed user, uint256 bps);
     event PaymentContractUpdated(address indexed paymentContract);
     event MembershipContractUpdated(address indexed membershipContract);
 
@@ -62,6 +68,28 @@ contract LoyaltyRewards {
         require(points[msg.sender] >= amount, "Not enough points");
         points[msg.sender] -= amount;
         emit Redeemed(msg.sender, amount);
+    }
+
+    function redeemDiscount(uint256 bps) external {
+        require(bps == DISCOUNT_BPS_10, "Unsupported discount");
+        require(pendingDiscountBps[msg.sender] == 0, "Discount already active");
+        require(points[msg.sender] >= DISCOUNT_POINTS_10, "Not enough points");
+        points[msg.sender] -= DISCOUNT_POINTS_10;
+        pendingDiscountBps[msg.sender] = bps;
+        emit DiscountRedeemed(msg.sender, bps, DISCOUNT_POINTS_10);
+    }
+
+    function discountBpsOf(address user) external view returns (uint256) {
+        return pendingDiscountBps[user];
+    }
+
+    function consumeDiscount(address user) external onlyPayment returns (uint256) {
+        uint256 bps = pendingDiscountBps[user];
+        if (bps > 0) {
+            pendingDiscountBps[user] = 0;
+            emit DiscountConsumed(user, bps);
+        }
+        return bps;
     }
 
     function balanceOf(address user) external view returns (uint256) {

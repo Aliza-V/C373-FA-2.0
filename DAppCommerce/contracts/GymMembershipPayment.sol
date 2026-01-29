@@ -3,6 +3,8 @@ pragma solidity ^0.8.19;
 
 interface ILoyaltyRewards {
     function recordPurchase(address buyer, uint256 points, uint256 xp) external;
+    function discountBpsOf(address user) external view returns (uint256);
+    function consumeDiscount(address user) external returns (uint256);
 }
 
 contract GymMembershipPayment {
@@ -78,7 +80,16 @@ contract GymMembershipPayment {
         Product memory product = products[_id];
         require(product.id != 0, "Invalid product");
         require(product.active, "Product inactive");
-        require(msg.value == product.priceWei, "Incorrect ETH value");
+
+        uint256 discountBps = 0;
+        if (loyaltyContract != address(0)) {
+            discountBps = ILoyaltyRewards(loyaltyContract).discountBpsOf(msg.sender);
+        }
+        uint256 finalPrice = product.priceWei;
+        if (discountBps > 0) {
+            finalPrice = product.priceWei - ((product.priceWei * discountBps) / 10000);
+        }
+        require(msg.value == finalPrice, "Incorrect ETH value");
         require(activeMembership[msg.sender] != _id, "Membership already active");
 
         uint256 previous = activeMembership[msg.sender];
@@ -91,7 +102,11 @@ contract GymMembershipPayment {
         (bool sent, ) = seller.call{value: msg.value}("");
         require(sent, "Payment failed");
 
-        uint256 points = product.priceWei / 1e15; // 0.001 ETH = 1 point
+        if (discountBps > 0) {
+            ILoyaltyRewards(loyaltyContract).consumeDiscount(msg.sender);
+        }
+
+        uint256 points = product.priceWei / 5e15; // 0.005 ETH = 1 point
         if (points == 0) {
             points = 1;
         }

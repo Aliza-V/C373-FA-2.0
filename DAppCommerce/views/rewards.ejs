@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Rewards</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="brand">FlexChain Fitness</div>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About Us</a>
+        <a class="active" href="/rewards">Rewards</a>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+      </div>
+      <div class="nav-actions">
+        <a class="button ghost" href="/profile">Profile</a>
+        <button class="button ghost" id="connectWallet">Connect Wallet</button>
+        <button class="button ghost" id="logoutUser" hidden>Logout</button>
+      </div>
+    </nav>
+
+    <main class="container">
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <h1>Rewards Marketplace</h1>
+            <p class="muted">Redeem loyalty points for promos, items, and perks.</p>
+          </div>
+          <div class="wallet-box">
+            <span class="label">Wallet</span>
+            <p id="walletAddress" class="mono"><%= account || 'Not connected' %></p>
+          </div>
+        </div>
+
+        <div class="grid three">
+          <div class="stat">
+            <span class="label">Points available</span>
+            <h2 id="loyaltyPoints">0</h2>
+          </div>
+          <div class="stat">
+            <span class="label">Recommended</span>
+            <h2>Promo Bundles</h2>
+          </div>
+          <div class="stat">
+            <span class="label">Next drop</span>
+            <h2>Weekend Rewards</h2>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <div>
+            <h2>Featured rewards</h2>
+            <p class="muted">Redeem instantly with a quick confirmation.</p>
+          </div>
+        </div>
+
+        <div class="grid three">
+          <article class="product-card reward-card" data-min-tier="Silver">
+            <div class="reward-meta">
+              <span class="badge">Silver</span>
+              <span class="badge reward-lock" hidden>Locked</span>
+            </div>
+            <div class="product-image" aria-hidden="true"></div>
+            <h3>Guest Pass</h3>
+            <p class="muted">Invite a friend for a complimentary gym visit.</p>
+            <div class="product-meta">
+              <span class="price">12 pts</span>
+              <button class="button" data-redeem-points="12" data-redeem-label="Guest Pass">
+                Redeem
+              </button>
+            </div>
+          </article>
+          <article class="product-card reward-card" data-min-tier="Silver">
+            <div class="reward-meta">
+              <span class="badge">Silver</span>
+              <span class="badge reward-lock" hidden>Locked</span>
+            </div>
+            <div class="product-image" aria-hidden="true"></div>
+            <h3>5% Off Merchandise</h3>
+            <p class="muted">Apply a small discount on in-store gear.</p>
+            <div class="product-meta">
+              <span class="price">14 pts</span>
+              <button class="button" data-redeem-points="14" data-redeem-label="5% Off Merchandise">
+                Redeem
+              </button>
+            </div>
+          </article>
+          <article class="product-card reward-card" data-min-tier="Silver">
+            <div class="reward-meta">
+              <span class="badge">Silver</span>
+              <span class="badge reward-lock" hidden>Locked</span>
+            </div>
+            <div class="product-image" aria-hidden="true"></div>
+            <h3>Priority Class Waitlist</h3>
+            <p class="muted">Jump ahead when popular classes are full.</p>
+            <div class="product-meta">
+              <span class="price">10 pts</span>
+              <button class="button" data-redeem-points="10" data-redeem-label="Priority Class Waitlist">
+                Redeem
+              </button>
+            </div>
+          </article>
+
+          <article class="product-card reward-card" data-min-tier="Gold">
+            <div class="reward-meta">
+              <span class="badge">Gold</span>
+              <span class="badge reward-lock" hidden>Locked</span>
+            </div>
+            <div class="product-image" aria-hidden="true"></div>
+            <h3>2 Guest Passes</h3>
+            <p class="muted">Bring two guests to train with you.</p>
+            <div class="product-meta">
+              <span class="price">20 pts</span>
+              <button class="button" data-redeem-points="20" data-redeem-label="2 Guest Passes">
+                Redeem
+              </button>
+            </div>
+          </article>
+          <article class="product-card reward-card" data-min-tier="Gold">
+            <div class="reward-meta">
+              <span class="badge">Gold</span>
+              <span class="badge reward-lock" hidden>Locked</span>
+            </div>
+            <div class="product-image" aria-hidden="true"></div>
+            <h3>10% Off Merchandise</h3>
+            <p class="muted">Save on apparel, bottles, and accessories.</p>
+            <div class="product-meta">
+              <span class="price">24 pts</span>
+              <button class="button" data-redeem-points="24" data-redeem-label="10% Off Merchandise">
+                Redeem
+              </button>
+            </div>
+          </article>
+          <article class="product-card reward-card" data-min-tier="Gold">
+            <div class="reward-meta">
+              <span class="badge">Gold</span>
+              <span class="badge reward-lock" hidden>Locked</span>
+            </div>
+            <div class="product-image" aria-hidden="true"></div>
+            <h3>Body Composition Scan</h3>
+            <p class="muted">Track progress with a detailed scan.</p>
+            <div class="product-meta">
+              <span class="price">22 pts</span>
+              <button class="button" data-redeem-points="22" data-redeem-label="Body Composition Scan">
+                Redeem
+              </button>
+            </div>
+          </article>
+          <article class="product-card reward-card" data-min-tier="Gold">
+            <div class="reward-meta">
+              <span class="badge">Gold</span>
+              <span class="badge reward-lock" hidden>Locked</span>
+            </div>
+            <div class="product-image" aria-hidden="true"></div>
+            <h3>10% Off Membership</h3>
+            <p class="muted">Applies to your next membership purchase.</p>
+            <div class="product-meta">
+              <span class="price">30 pts</span>
+              <button
+                class="button"
+                data-redeem-points="30"
+                data-redeem-label="10% Off Membership"
+                data-redeem-type="discount"
+                data-redeem-bps="1000"
+              >
+                Redeem
+              </button>
+            </div>
+          </article>
+
+          <article class="product-card reward-card" data-min-tier="Platinum">
+            <div class="reward-meta">
+              <span class="badge">Platinum</span>
+              <span class="badge reward-lock" hidden>Locked</span>
+            </div>
+            <div class="product-image" aria-hidden="true"></div>
+            <h3>Unlimited Guest Passes</h3>
+            <p class="muted">Bring guests anytime this month.</p>
+            <div class="product-meta">
+              <span class="price">40 pts</span>
+              <button class="button" data-redeem-points="40" data-redeem-label="Unlimited Guest Passes">
+                Redeem
+              </button>
+            </div>
+          </article>
+          <article class="product-card reward-card" data-min-tier="Platinum">
+            <div class="reward-meta">
+              <span class="badge">Platinum</span>
+              <span class="badge reward-lock" hidden>Locked</span>
+            </div>
+            <div class="product-image" aria-hidden="true"></div>
+            <h3>15% Off Merchandise</h3>
+            <p class="muted">Bigger savings on premium gear.</p>
+            <div class="product-meta">
+              <span class="price">35 pts</span>
+              <button class="button" data-redeem-points="35" data-redeem-label="15% Off Merchandise">
+                Redeem
+              </button>
+            </div>
+          </article>
+          <article class="product-card reward-card" data-min-tier="Platinum">
+            <div class="reward-meta">
+              <span class="badge">Platinum</span>
+              <span class="badge reward-lock" hidden>Locked</span>
+            </div>
+            <div class="product-image" aria-hidden="true"></div>
+            <h3>Personal Training Session</h3>
+            <p class="muted">Monthly 30-minute personal training session.</p>
+            <div class="product-meta">
+              <span class="price">45 pts</span>
+              <button class="button" data-redeem-points="45" data-redeem-label="Personal Training Session">
+                Redeem
+              </button>
+            </div>
+          </article>
+        </div>
+
+        <div class="card">
+          <h3>Redeem Loyalty Points</h3>
+          <p class="muted">After confirmation, the reward is applied instantly.</p>
+          <div class="notice" id="redeemNotice" hidden></div>
+        </div>
+      </section>
+    </main>
+
+    <div class="modal-backdrop" id="redeemModal" hidden>
+      <div class="modal">
+        <h3 id="redeemModalTitle">Confirm Redemption</h3>
+        <p class="muted" id="redeemModalDescription">
+          Redeem this reward? A code will be generated after confirmation.
+        </p>
+        <div class="modal-actions">
+          <button class="button ghost" id="redeemModalCancel">Cancel</button>
+          <button class="button" id="redeemModalConfirm">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <span>FlexChain Fitness c 2026</span>
+      <span>Redeem perks with on-chain loyalty points</span>
+      <span class="server-status">Listening at <%= serverUrl || 'http://localhost:3000' %></span>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    <script src="/js/dapp.js"></script>
+  </body>
+</html>

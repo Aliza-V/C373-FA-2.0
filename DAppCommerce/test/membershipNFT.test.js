@@ -19,7 +19,7 @@ contract("MembershipNFT", (accounts) => {
 
   it("upgrades membership after three purchases", async () => {
     const { membership, payment } = await deployAll();
-    const price = web3.utils.toWei("0.01", "ether");
+    const price = web3.utils.toWei("0.05", "ether");
     await payment.addProduct("Fruits", "Tropical fruits", price, { from: seller });
 
     await payment.purchaseProduct(1, { from: buyer, value: price });

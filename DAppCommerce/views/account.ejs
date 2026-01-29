@@ -11,8 +11,7 @@
       <div class="nav-links">
         <a href="/">Home</a>
         <a href="/about">About Us</a>
-        <a class="<%= activePage === 'account' ? 'active' : '' %>" href="/account">Wallet / Account</a>
-        <a class="<%= activePage === 'profile' ? 'active' : '' %>" href="/profile">Profile</a>
+        <a href="/rewards">Rewards</a>
         <a href="/login">Login</a>
         <a href="/register">Register</a>
       </div>
@@ -156,12 +155,8 @@
 
         <div class="card">
           <h3>Redeem Loyalty Points</h3>
-          <p class="muted">Use points to unlock discounts at checkout.</p>
-          <div class="redeem-row">
-            <input type="number" id="redeemAmount" min="1" placeholder="Enter points" />
-            <button class="button" id="redeemButton">Redeem</button>
-          </div>
-          <div class="notice" id="redeemNotice" hidden></div>
+          <p class="muted">Redeem rewards instantly on the Rewards page.</p>
+          <a class="button" href="/rewards">Go to Rewards</a>
         </div>
       </section>
     </main>

@@ -13,6 +13,7 @@ const DApp = {
 
     if (window.ethereum) {
       this.web3 = new Web3(window.ethereum);
+      this.registerWalletEvents();
       await this.loadAddresses();
       await this.refreshUI();
     } else {
@@ -74,9 +75,24 @@ const DApp = {
     const redeemButton = document.getElementById("redeemButton");
     if (redeemButton) {
       redeemButton.addEventListener("click", async () => {
-        const amountInput = document.getElementById("redeemAmount");
-        const amount = amountInput.value;
-        await this.redeemPoints(amount);
+        const points = redeemButton.dataset.redeemPoints || "";
+        const label = redeemButton.dataset.redeemLabel || "";
+        const type = redeemButton.dataset.redeemType || "points";
+        const bps = redeemButton.dataset.redeemBps || "";
+        await this.redeemReward(points, label, type, bps);
+      });
+    }
+
+    const rewardButtons = document.querySelectorAll("[data-redeem-points]");
+    if (rewardButtons.length) {
+      rewardButtons.forEach((button) => {
+        button.addEventListener("click", async () => {
+          const points = button.dataset.redeemPoints || "";
+          const label = button.dataset.redeemLabel || "";
+          const type = button.dataset.redeemType || "points";
+          const bps = button.dataset.redeemBps || "";
+          await this.redeemReward(points, label, type, bps);
+        });
       });
     }
 
@@ -117,6 +133,23 @@ const DApp = {
         await this.cancelMembership();
       });
     }
+  },
+
+  registerWalletEvents() {
+    if (!window.ethereum || !window.ethereum.on) {
+      return;
+    }
+
+    window.ethereum.on("accountsChanged", async (accounts) => {
+      this.account = accounts && accounts.length ? accounts[0] : null;
+      this.updateWalletDisplay();
+      await this.refreshUI();
+    });
+
+    window.ethereum.on("disconnect", () => {
+      this.account = null;
+      this.updateWalletDisplay();
+    });
   },
 
   async connectWallet() {
@@ -216,21 +249,128 @@ const DApp = {
     if (!this.contracts.payment) {
       return;
     }
+    const discountBps = await this.getDiscountBps();
+    const finalPriceWei = this.applyDiscount(priceWei, discountBps);
     notice.hidden = false;
-    notice.textContent = "Activating membership...";
+    notice.textContent =
+      discountBps > 0
+        ? `Applying ${discountBps / 100}% discount and activating membership...`
+        : "Activating membership...";
     try {
       await this.contracts.payment.methods.purchaseProduct(productId).send({
         from: this.account,
-        value: priceWei,
+        value: finalPriceWei,
       });
-      notice.textContent = "Membership activated! Rewards updated.";
+      notice.textContent =
+        discountBps > 0
+          ? "Membership activated! Discount applied and rewards updated."
+          : "Membership activated! Rewards updated.";
       await this.refreshUI();
     } catch (err) {
       notice.textContent = `Activation failed: ${err.message}`;
     }
   },
 
-  async redeemPoints(amount) {
+  async getDiscountBps() {
+    if (!this.contracts.loyalty || !this.account) {
+      return 0;
+    }
+    try {
+      const bps = await this.contracts.loyalty.methods.discountBpsOf(this.account).call();
+      return Number(bps) || 0;
+    } catch (err) {
+      return 0;
+    }
+  },
+
+  applyDiscount(priceWei, discountBps) {
+    if (!discountBps || Number(discountBps) <= 0) {
+      return priceWei;
+    }
+    const price = BigInt(priceWei);
+    const bps = BigInt(discountBps);
+    const discount = (price * bps) / 10000n;
+    return (price - discount).toString();
+  },
+
+  async redeemReward(points, label, type, bps) {
+    if (!points || Number(points) <= 0) {
+      return;
+    }
+    const labelText = label ? `${label} for ${points} pts` : `${points} pts`;
+    const confirmed = await this.confirmRedeem(labelText);
+    if (!confirmed) {
+      return;
+    }
+    if (type === "discount") {
+      await this.redeemDiscount(points, bps, label);
+    } else {
+      await this.redeemPoints(points, label);
+    }
+  },
+
+  confirmRedeem(labelText) {
+    const modal = document.getElementById("redeemModal");
+    if (!modal) {
+      return Promise.resolve(window.confirm(`Redeem ${labelText}?`));
+    }
+
+    const titleEl = document.getElementById("redeemModalTitle");
+    const descEl = document.getElementById("redeemModalDescription");
+    const confirmBtn = document.getElementById("redeemModalConfirm");
+    const cancelBtn = document.getElementById("redeemModalCancel");
+
+    if (!confirmBtn || !cancelBtn) {
+      return Promise.resolve(window.confirm(`Redeem ${labelText}?`));
+    }
+
+    if (titleEl) {
+      titleEl.textContent = "Confirm Redemption";
+    }
+    if (descEl) {
+      descEl.textContent = `Redeem ${labelText}? A code will be generated after confirmation.`;
+    }
+
+    modal.hidden = false;
+    document.body.classList.add("modal-open");
+
+    return new Promise((resolve) => {
+      const cleanup = () => {
+        modal.hidden = true;
+        document.body.classList.remove("modal-open");
+        confirmBtn.removeEventListener("click", onConfirm);
+        cancelBtn.removeEventListener("click", onCancel);
+        modal.removeEventListener("click", onBackdrop);
+        document.removeEventListener("keydown", onKeydown);
+      };
+
+      const onConfirm = () => {
+        cleanup();
+        resolve(true);
+      };
+      const onCancel = () => {
+        cleanup();
+        resolve(false);
+      };
+      const onBackdrop = (event) => {
+        if (event.target === modal) {
+          onCancel();
+        }
+      };
+      const onKeydown = (event) => {
+        if (event.key === "Escape") {
+          onCancel();
+        }
+      };
+
+      confirmBtn.addEventListener("click", onConfirm);
+      cancelBtn.addEventListener("click", onCancel);
+      modal.addEventListener("click", onBackdrop);
+      document.addEventListener("keydown", onKeydown);
+    });
+  },
+
+  async redeemPoints(amount, label) {
     const notice = document.getElementById("redeemNotice");
     if (!this.account) {
       await this.connectWallet();
@@ -238,14 +378,49 @@ const DApp = {
     if (!this.contracts.loyalty) {
       return;
     }
-    notice.hidden = false;
-    notice.textContent = "Redeeming points...";
+    if (notice) {
+      notice.hidden = false;
+      notice.textContent = label ? `Redeeming ${label}...` : "Redeeming points...";
+    }
     try {
       await this.contracts.loyalty.methods.redeem(amount).send({ from: this.account });
-      notice.textContent = "Points redeemed successfully.";
+      if (notice) {
+        notice.textContent = label
+          ? `Redeemed ${label}.`
+          : "Points redeemed successfully.";
+      }
       await this.refreshUI();
     } catch (err) {
-      notice.textContent = `Redeem failed: ${err.message}`;
+      if (notice) {
+        notice.textContent = `Redeem failed: ${err.message}`;
+      }
+    }
+  },
+
+  async redeemDiscount(points, bps, label) {
+    const notice = document.getElementById("redeemNotice");
+    if (!this.account) {
+      await this.connectWallet();
+    }
+    if (!this.contracts.loyalty) {
+      return;
+    }
+    if (notice) {
+      notice.hidden = false;
+      notice.textContent = label ? `Redeeming ${label}...` : "Redeeming discount...";
+    }
+    try {
+      await this.contracts.loyalty.methods.redeemDiscount(bps).send({ from: this.account });
+      if (notice) {
+        notice.textContent = label
+          ? `Redeemed ${label}.`
+          : "Discount redeemed.";
+      }
+      await this.refreshUI();
+    } catch (err) {
+      if (notice) {
+        notice.textContent = `Redeem failed: ${err.message}`;
+      }
     }
   },
 
@@ -297,11 +472,13 @@ const DApp = {
     const progressEl = document.getElementById("xpProgress");
 
     if (!pointsEl) {
+      this.updateRewardsTier("None");
       return;
     }
 
     const targetAddress = this.account || this.sessionWallet;
     if (!targetAddress) {
+      this.updateRewardsTier("None");
       return;
     }
 
@@ -313,16 +490,57 @@ const DApp = {
     ]);
 
     pointsEl.textContent = points;
-    xpEl.textContent = xp;
-    purchasesEl.textContent = purchases;
-    if (tierEl) {
-      tierEl.textContent = tierLabel;
+    if (xpEl) {
+      xpEl.textContent = xp;
     }
-    this.updateTierBenefits(tierLabel);
+    if (purchasesEl) {
+      purchasesEl.textContent = purchases;
+    }
+    if (tierEl) {
+      const computedTier = this.calculateTierLabel(xp, purchases);
+      const finalTier =
+        tierLabel && tierLabel !== "None" ? tierLabel : computedTier || tierLabel || "None";
+      tierEl.textContent = finalTier;
+    }
+    const resolvedTier = tierEl ? tierEl.textContent : tierLabel;
+    this.updateTierBenefits(resolvedTier);
+    this.updateRewardsTier(resolvedTier);
     if (progressEl) {
       const progress = Math.min((Number(xp) / 500) * 100, 100);
       progressEl.style.width = `${progress}%`;
     }
+  },
+
+  getTierRank(tierLabel) {
+    const label = (tierLabel || "").toLowerCase();
+    if (label === "silver") {
+      return 1;
+    }
+    if (label === "gold") {
+      return 2;
+    }
+    if (label === "platinum") {
+      return 3;
+    }
+    return 0;
+  },
+
+  calculateTierLabel(xp, purchases) {
+    const xpValue = Number(xp) || 0;
+    const purchaseValue = Number(purchases) || 0;
+    if (purchaseValue < 3) {
+      return "None";
+    }
+    if (xpValue >= 500) {
+      return "Platinum";
+    }
+    if (xpValue >= 250) {
+      return "Gold";
+    }
+    if (xpValue >= 100) {
+      return "Silver";
+    }
+    return "None";
   },
 
   updateTierBenefits(tierLabel) {
@@ -334,6 +552,29 @@ const DApp = {
     cards.forEach((card) => {
       const isActive = card.dataset.tier === tierLabel;
       card.classList.toggle("active", isActive);
+    });
+  },
+
+  updateRewardsTier(tierLabel) {
+    const rewards = document.querySelectorAll(".reward-card[data-min-tier]");
+    if (!rewards.length) {
+      return;
+    }
+
+    const rank = this.getTierRank(tierLabel);
+    rewards.forEach((card) => {
+      const required = card.dataset.minTier || "None";
+      const requiredRank = this.getTierRank(required);
+      const locked = requiredRank > rank;
+      card.classList.toggle("locked", locked);
+      const action = card.querySelector("[data-redeem-points]");
+      if (action) {
+        action.disabled = locked;
+      }
+      const lockBadge = card.querySelector(".reward-lock");
+      if (lockBadge) {
+        lockBadge.hidden = !locked;
+      }
     });
   },
 
@@ -439,13 +680,35 @@ const DApp = {
       if (notice) {
         notice.textContent = "Logged out.";
       }
+      await this.disconnectWallet();
+      window.location.href = "/";
+      return;
     } catch (err) {
       if (notice) {
         notice.textContent = "Logout failed.";
       }
     }
 
+    await this.disconnectWallet();
     await this.updateSessionStatus();
+  },
+
+  async disconnectWallet() {
+    this.account = null;
+    this.updateWalletDisplay();
+
+    if (!window.ethereum || !window.ethereum.request) {
+      return;
+    }
+
+    try {
+      await window.ethereum.request({
+        method: "wallet_revokePermissions",
+        params: [{ eth_accounts: {} }],
+      });
+    } catch (err) {
+      // Ignore if the wallet doesn't support revoke permissions.
+    }
   },
 
   async linkWallet() {

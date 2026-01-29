@@ -149,6 +149,10 @@ app.get("/about", (req, res) => {
   res.render("about", { serverUrl: SERVER_URL });
 });
 
+app.get("/rewards", (req, res) => {
+  res.render("rewards", { account: defaultAccount, serverUrl: SERVER_URL });
+});
+
 app.get("/login", (req, res) => {
   res.render("login", { serverUrl: SERVER_URL });
 });
