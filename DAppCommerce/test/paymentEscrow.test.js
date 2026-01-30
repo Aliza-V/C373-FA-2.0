@@ -17,6 +17,19 @@ contract("GymMembershipPayment", (accounts) => {
     return { loyalty, membership, payment };
   }
 
+  async function expectRevert(promise, reason) {
+    try {
+      await promise;
+      assert.fail("Expected revert was not received");
+    } catch (err) {
+      const message = err.message || "";
+      assert(message.includes("revert"), "Expected revert");
+      if (reason) {
+        assert(message.includes(reason), `Expected reason: ${reason}`);
+      }
+    }
+  }
+
   it("adds a product and reads it back", async () => {
     const { payment } = await deployAll();
     const price = web3.utils.toWei("0.01", "ether");
@@ -43,5 +56,53 @@ contract("GymMembershipPayment", (accounts) => {
     const xp = await loyalty.xpOf(buyer);
     assert(points.toNumber() > 0, "points issued");
     assert(xp.toNumber() > 0, "xp issued");
+  });
+
+  it("rejects purchase for an invalid product id", async () => {
+    const { payment } = await deployAll();
+    const price = web3.utils.toWei("0.01", "ether");
+
+    await expectRevert(
+      payment.purchaseProduct(1, { from: buyer, value: price }),
+      "Invalid product"
+    );
+  });
+
+  it("rejects purchase with incorrect ETH amount", async () => {
+    const { payment } = await deployAll();
+    const price = web3.utils.toWei("0.01", "ether");
+    await payment.addProduct("Fresh Milk", "Dairy fresh milk", price, { from: seller });
+    const wrongValue = web3.utils.toBN(price).sub(web3.utils.toBN("1"));
+
+    await expectRevert(
+      payment.purchaseProduct(1, { from: buyer, value: wrongValue }),
+      "Incorrect ETH value"
+    );
+  });
+
+  it("rejects purchasing the same active membership twice", async () => {
+    const { payment } = await deployAll();
+    const price = web3.utils.toWei("0.01", "ether");
+    await payment.addProduct("Fresh Milk", "Dairy fresh milk", price, { from: seller });
+
+    await payment.purchaseProduct(1, { from: buyer, value: price });
+    await expectRevert(
+      payment.purchaseProduct(1, { from: buyer, value: price }),
+      "Membership already active"
+    );
+  });
+
+  it("cancels membership and clears active status", async () => {
+    const { payment } = await deployAll();
+    const price = web3.utils.toWei("0.01", "ether");
+    await payment.addProduct("Fresh Milk", "Dairy fresh milk", price, { from: seller });
+
+    await payment.purchaseProduct(1, { from: buyer, value: price });
+    await payment.cancelMembership({ from: buyer });
+
+    const activeId = await payment.activeMembershipOf(buyer);
+    const hasPurchased = await payment.hasPurchased(buyer, 1);
+    assert.equal(activeId.toNumber(), 0, "active membership should be cleared");
+    assert.equal(hasPurchased, false, "purchase flag should be cleared");
   });
 });

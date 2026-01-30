@@ -8797,12 +8797,12 @@
         }
       },
       "links": {},
-      "address": "0x699D23220EFBfF0078f752eb8e9b8421b397352f",
-      "transactionHash": "0x24043bbbbbb03a507a1907f0816d85accb0441baff58b3a6931afa8f67a97c93"
+      "address": "0xe50972a80DFFB859E9f443ABCfC160D35b76e01a",
+      "transactionHash": "0x0c994936850c741afd0afdced9049f05a84c2ea16a75ff780a5a786c609a1140"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-01-30T07:06:59.350Z",
+  "updatedAt": "2026-01-30T07:54:21.676Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
