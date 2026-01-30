@@ -153,6 +153,11 @@ const DApp = {
   },
 
   async connectWallet() {
+    if (!this.sessionEmail) {
+      alert("Please sign up or log in before connecting a wallet.");
+      this.updateConnectButton();
+      return;
+    }
     if (!window.ethereum) {
       alert("MetaMask is required to continue.");
       return;
@@ -176,9 +181,31 @@ const DApp = {
 
   updateConnectButton() {
     const connectButton = document.getElementById("connectWallet");
+    const statusDisplay = document.getElementById("walletStatus");
+    const isLoggedIn = Boolean(this.sessionEmail);
+
+    if (statusDisplay) {
+      if (!isLoggedIn) {
+        const statusValue = this.account || this.sessionWallet;
+        statusDisplay.textContent = statusValue
+          ? `Wallet: ${statusValue}`
+          : "Wallet: Sign up to connect";
+        statusDisplay.hidden = false;
+      } else {
+        statusDisplay.hidden = true;
+      }
+    }
+
     if (!connectButton) {
       return;
     }
+    if (!isLoggedIn) {
+      connectButton.hidden = true;
+      connectButton.disabled = true;
+      connectButton.classList.remove("connected");
+      return;
+    }
+    connectButton.hidden = false;
     if (!window.ethereum) {
       connectButton.textContent = "MetaMask not found";
       connectButton.disabled = true;

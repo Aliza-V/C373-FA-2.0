@@ -17,14 +17,26 @@
       </div>
       <div class="nav-actions">
         <a class="button ghost" href="/profile">Profile</a>
+        <span class="wallet-status" id="walletStatus" hidden>Wallet: Not connected</span>
         <button class="button ghost" id="connectWallet">Connect Wallet</button>
       </div>
     </nav>
 
     <main class="container">
       <% if (product) { %>
+        <% const productImages = {
+          "Daily Pass": "/images/dailypass.png",
+          "Weekly Pass": "/images/weeklypass.png",
+          "Monthly Membership": "/images/monthlypass.png",
+          "Yearly Membership": "/images/yearlypass.png",
+        }; %>
+        <% const imageSrc = productImages[product.name]; %>
         <section class="detail">
-          <div class="detail-image" aria-hidden="true"></div>
+          <div class="detail-image">
+            <% if (imageSrc) { %>
+              <img src="<%= imageSrc %>" alt="<%= product.name %> pass" loading="lazy" />
+            <% } %>
+          </div>
           <div class="detail-content">
             <h1><%= product.name %></h1>
             <p class="muted"><%= product.description %></p>
